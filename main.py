@@ -133,9 +133,10 @@ else:  # ЭТАП 2
         # Безопасная HTML-кнопка
         st.markdown(f"""
             <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
-                <div style="
-                    background: linear-gradient(90deg, #6c5ce7, #d946ef);
-                    color: white !important;
+                # Полностью УДАЛИТЕ этот кусок кода:
+params = {"url": site_url, "text": share_text}
+tg_share_link = f"https://t.me?{urllib.parse.urlencode(params)}"
+
                     text-align: center;
                     padding: 14px 20px;
                     border-radius: 25px;
