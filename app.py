@@ -2,13 +2,13 @@ import os
 import streamlit as st
 from datetime import datetime
 import requests
-import urllib.parse  # Библиотека для безопасного кодирования текста ссылки
+import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- НАСТРОЙКА TELEGRAM БОТА (Впишите свои данные в кавычках) ---
+# --- ФИНАЛЬНАЯ НАСТРОЙКА TELEGRAM БОТА ПОДДКЛЮЧЕНА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
-TELEGRAM_CHAT_ID = "@982947729"
+TELEGRAM_CHAT_ID = "982947729"
 
 COLOR_MAP = {"1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", "5": "#ff9f43", "6": "#ff7675", "7": "#01cbc6", "8": "#f1c40f", "9": "#ffffff"}
 current_accent_color = "#6c5ce7"
@@ -26,19 +26,8 @@ st.markdown(f"""
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
-        
-        .stTextInput input::placeholder {{
-            color: #b2bec3 !important;
-            opacity: 1 !important;
-        }}
-        
-        div[data-testid="stRadio"] {{
-            background-color: #1c1936 !important;
-            padding: 15px !important;
-            border-radius: 10px !important;
-            border: 1px solid {current_accent_color}44 !important;
-            box-shadow: 0 0 10px {current_accent_color}11;
-        }}
+        .stTextInput input::placeholder {{ color: #b2bec3 !important; opacity: 1 !important; }}
+        div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -70,8 +59,8 @@ def calculate_numerology_number(birth_date):
 
 def save_lead(contact, birth_date, num_key):
     try:
-        msg = f"🔮 Новый лид!\n👤 Контакт: {contact}\n📅 Дата: {birth_date.strftime('%d.%m.%Y')}\n🔢 Число: {num_key}"
-        requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg}, timeout=5)
+        msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Контакт:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}"
+        requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
     with open("leads.txt", "a", encoding="utf-8") as f:
         f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {contact} | {birth_date.strftime('%d.%m.%Y')} | {num_key}\n")
@@ -84,8 +73,7 @@ if st.session_state.stage == 1:
         user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997")
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact or not user_date_str: 
-                st.error("Заполните все поля.")
+            if not user_contact or not user_date_str: st.error("Заполните все поля.")
             else:
                 try:
                     clean_str = "".join(user_date_str.strip().rstrip('.').split())
@@ -95,8 +83,7 @@ if st.session_state.stage == 1:
                     st.session_state.num_code = num_code
                     st.session_state.stage = 2
                     st.rerun()
-                except: 
-                    st.error("❌ Неверный формат! Пример: 05.08.1997")
+                except: st.error("❌ Неверный формат! Пример: 05.08.1997")
 
 # --- ЭТАП 2 ---
 if st.session_state.stage == 2:
@@ -115,45 +102,31 @@ if st.session_state.stage == 2:
     if st.button("📊 Скомпилировать финальный отчет"):
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
         st.markdown("---")
-        
         final_report = profile['r'][idx]
         st.warning(final_report)
-        
-        # Текст, который улетит в Telegram получателю
-        raw_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Узнай свой код силы по ссылке:"
-        encoded_text = urllib.parse.quote(raw_text)
-        
-        # Ссылка на ваш текущий сайт (берется автоматически или жестко)
-        site_url = "https://streamlit.app" # Укажите здесь точную ссылку на ваш сайт, если она другая
-        
-        # Формируем железно рабочую ссылку-шер для Telegram
-        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
-        
-        # --- КНОПКА ПОДЕЛИТЬСЯ ЧЕРЕЗ TELEGRAM ---
-        st.markdown(f"""
-            <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
-                <div style="
-                    background: linear-gradient(90deg, #6c5ce7, #d946ef);
-                    color: white;
-                    text-align: center;
-                    padding: 12px 20px;
-                    border-radius: 20px;
-                    font-weight: bold;
-                    width: 90%;
-                    box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
-                    margin: 15px auto 25px auto;
-                ">
-                    ✈️ Поделиться результатом в Telegram
-                </div>
-            </a>
-        """, unsafe_allow_html=True)
-        
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
+        encoded_text = urllib.parse.quote(share_text)
+        st.markdown(f'<a href="https://t.me{encoded_text}" target="_blank" style="text-decoration: none;"><div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white; text-align: center; padding: 12px; border-radius: 20px; font-weight: bold; width: 90%; margin: 15px auto;">✈️ Поделиться результатом в Telegram</div></a>', unsafe_allow_html=True)
         if st.button("Перезапустить систему"):
             st.session_state.stage = 1
             st.session_state.num_code = None
             st.rerun()
 
+# --- СЕКРЕТНАЯ АДМИНКА + ВСТРОЕННЫЙ ТЕСТ БОТА ---
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
-        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу", data=file, file_name="leads.txt")
+    password_input = st.text_input("Пароль:", type="password")
+    if password_input == "supersecret2026":
+        st.success("Доступ к панели открыт.")
+        
+        if st.button("⚡ Проверить связь с Telegram-ботом"):
+            test_url = f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage"
+            test_payload = {"chat_id": TELEGRAM_CHAT_ID, "text": "🚀 Проверка связи! Ваш IT-проект успешно подключен к Telegram."}
+            try:
+                res = requests.post(test_url, json=test_payload, timeout=5)
+                if res.status_code == 200: st.success("✅ Отлично! Бот работает правильно.")
+                else: st.error(f"❌ Код ответа сервера: {res.status_code}.")
+            except Exception as e: st.error(f"❌ Ошибка подключения: {e}")
+        
+        if os.path.exists("leads.txt"):
+            with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
