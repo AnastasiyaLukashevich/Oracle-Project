@@ -2,6 +2,7 @@ import os
 import streamlit as st
 from datetime import datetime
 import requests
+import urllib.parse  # Библиотека для безопасного кодирования текста ссылки
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
@@ -26,10 +27,9 @@ st.markdown(f"""
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         
-        /* НОВОЕ ПРАВИЛО: Перекрашиваем цвет шрифта примеров (placeholder) в полях ввода */
         .stTextInput input::placeholder {{
-            color: #b2bec3 !important; /* Яркий и читаемый светло-серый цвет */
-            opacity: 1 !important;     /* Убираем прозрачность в браузерах Safari/iOS */
+            color: #b2bec3 !important;
+            opacity: 1 !important;
         }}
         
         div[data-testid="stRadio"] {{
@@ -119,25 +119,33 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        share_text = f"Я прошел Digital Oracle и мой вердикт: {final_report} Узнай свой код застоя!"
+        # Текст, который улетит в Telegram получателю
+        raw_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Узнай свой код силы по ссылке:"
+        encoded_text = urllib.parse.quote(raw_text)
         
+        # Ссылка на ваш текущий сайт (берется автоматически или жестко)
+        site_url = "https://streamlit.app" # Укажите здесь точную ссылку на ваш сайт, если она другая
+        
+        # Формируем железно рабочую ссылку-шер для Telegram
+        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
+        
+        # --- КНОПКА ПОДЕЛИТЬСЯ ЧЕРЕЗ TELEGRAM ---
         st.markdown(f"""
-            <button onclick="navigator.share({{title: 'Digital Oracle', text: '{share_text}', url: window.location.href}})" 
-            style="
-                background: linear-gradient(90deg, #6c5ce7, #d946ef);
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 20px;
-                font-weight: bold;
-                cursor: pointer;
-                width: 100%;
-                box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
-                margin-top: 15px;
-                margin-bottom: 25px;
-            ">
-                📢 Поделиться результатом
-            </button>
+            <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
+                <div style="
+                    background: linear-gradient(90deg, #6c5ce7, #d946ef);
+                    color: white;
+                    text-align: center;
+                    padding: 12px 20px;
+                    border-radius: 20px;
+                    font-weight: bold;
+                    width: 90%;
+                    box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
+                    margin: 15px auto 25px auto;
+                ">
+                    ✈️ Поделиться результатом в Telegram
+                </div>
+            </a>
         """, unsafe_allow_html=True)
         
         if st.button("Перезапустить систему"):
