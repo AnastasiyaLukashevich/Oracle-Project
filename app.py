@@ -127,6 +127,8 @@ if st.session_state.stage == 2:
         # Генерация нативной кнопки Поделиться
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
         encoded_text = urllib.parse.quote(share_text)
+        
+        # ПРЯМАЯ ССЫЛКА НА ВАШЕГО БОТА @Lu4ek_bot С ПОДСТАНОВКОЙ ТЕКСТА
         tg_share_link = f"https://t.me{encoded_text}"
         
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
