@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from datetime import date, datetime
+from datetime import datetime
 import requests
 import urllib.parse
 
@@ -94,15 +94,20 @@ if st.session_state.stage == 1:
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
             if not user_contact or not user_date_str: st.error("Заполните все поля.")
             else:
-                try:
-                    clean_str = "".join(user_date_str.strip().rstrip('.').split())
-                    user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
-                    num_code = calculate_numerology_number(user_date)
-                    save_lead(user_contact, user_date, num_code)
-                    st.session_state.num_code = num_code
-                    st.session_state.stage = 2
-                    st.rerun()
-                except: st.error("❌ Неверный формат! Пример: 05.08.1997")
+                clean_str = "".join(user_date_str.strip().rstrip('.').split())
+                # Простая проверка длины строки вместо падающего try-except
+                if len(clean_str) == 10 and clean_str[2] == '.' and clean_str[5] == '.':
+                    try:
+                        user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
+                        num_code = calculate_numerology_number(user_date)
+                        save_lead(user_contact, user_date, num_code)
+                        st.session_state.num_code = num_code
+                        st.session_state.stage = 2
+                        st.rerun()
+                    except:
+                        st.error("❌ Неверный формат даты! Пример: 05.08.1997")
+                else:
+                    st.error("❌ Неверный формат даты! Пример: 05.08.1997")
 
 # --- ЭТАП 2 ---
 if st.session_state.stage == 2:
@@ -124,14 +129,11 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # Ссылка ведёт на внешний сайт Streamlit, а текст пиарит вашего бота @Lu4ek_bot
         site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
         encoded_text = urllib.parse.quote(share_text)
         
         tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
-        
-        # Нативная и железно рабочая кнопка без HTML
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
         if st.button("Перезапустить систему"):
