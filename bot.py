@@ -15,7 +15,7 @@ def run_web_server():
     app.run(host="0.0.0.0", port=port)
 
 # --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
-TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
+TOKEN = "7786619038:AAERLX0PyfEJVZMdTpF-1dSHeMrsoyswTKA"
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
