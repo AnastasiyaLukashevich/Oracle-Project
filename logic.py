@@ -40,7 +40,14 @@ def get_combined_analysis(birth_date, contact):
     data = load_data()
     num_key = calculate_numerology_number(birth_date)
     save_lead(contact, birth_date, num_key)
-    result_data = data.get("results", {}).get(num_key, {"title": f"Код {num_key}", "psychology": "В разработке.", "advice": "В разработке."})
+    
+    # Жесткий поиск по корню "results" в data.json
+    results_block = data.get("results", {})
+    result_data = results_block.get(num_key, {
+        "title": f"Код Судьбы: {num_key}",
+        "psychology": "Психологический текст подгружается...",
+        "advice": "Практический совет подгружается..."
+    })
     return num_key, result_data
 
 def get_deep_test_for_number(num_key):
