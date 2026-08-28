@@ -11,7 +11,9 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
-TELEGRAM_CHAT_ID = "982947729"  # Серверный ID вашего чата для приема уведомлений
+
+# ВСТАВЬТЕ СЮДА ВАШ ЛИЧНЫЙ ЦИФРОВОЙ ID ИЗ @userinfobot (БЕЗ КАВЫЧЕК!)
+TELEGRAM_CHAT_ID = 982947729  
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
@@ -30,11 +32,19 @@ st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
         .stTextInput input, div[data-testid="stDateInput"] input {{ background-color: #16122c !important; color: {current_accent_color} !important; border: 1px solid {current_accent_color} !important; border-radius: 8px !important; }}
-        .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
-        .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
-        div[data-testid="stNotification"] {{ background-color: #2a244d !important; color: #ffffff !important; border-radius: 12px !important; border: 2px solid #f1c40f !important; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); }}
+        
+        /* Стили для адаптивных мобильных блоков расшифровки */
+        .neon-box {{
+            background-color: #16122c !important;
+            padding: 18px !important;
+            border-radius: 10px !important;
+            margin-bottom: 15px !important;
+            word-wrap: break-word !important;
+            white-space: normal !important;
+            line-height: 1.5 !important;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -46,7 +56,6 @@ def calculate_numerology_number(birth_date):
 
 def save_lead(contact, birth_date, num_key):
     try:
-        # Уведомление с жесткой отметкой вашего личного аккаунта @AnastasiyaLukashevich
         msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Клиент:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}\n\nАдминистратор: @AnastasiyaLukashevich"
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
@@ -69,8 +78,17 @@ if st.session_state.stage == 1:
 else:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
-    st.info(profile['psychology'])
-    st.success(profile['advice'])
+    
+    # --- АДАПТИВНЫЙ ВЫВОД СФЕР ЖИЗНИ ЧЕРЕЗ HTML С АВТОПЕРЕНОСОМ СТРОК ---
+    st.markdown(f"""
+        <div class="neon-box" style="border-left: 5px solid #ff0055;">
+            <span style="color: #ff0055; font-weight: bold;">{profile['psychology']}</span>
+        </div>
+        <div class="neon-box" style="border-left: 5px solid #00ff88;">
+            <span style="color: #00ff88; font-weight: bold;">{profile['advice']}</span>
+        </div>
+    """, unsafe_allow_html=True)
+    
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
     c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
@@ -80,9 +98,14 @@ else:
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
         st.markdown("---")
         final_report = profile['r'][idx]
-        st.warning(final_report)
         
-        # --- СБОРКА ТЕКСТА ШЕРА С ВАШИМ АДРЕСОМ САЙТА И ВАШИМ БОТОМ @Lu4ek_bot ---
+        st.markdown(f"""
+            <div class="neon-box" style="border: 2px solid #f1c40f; background-color: #221a35 !important;">
+                <span style="color: #ffffff; font-weight: bold;">{final_report}</span>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ ---
         site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
@@ -97,7 +120,6 @@ else:
         """, unsafe_allow_html=True)
         
     st.markdown("<br>", unsafe_allow_html=True)
-    # КНОПКА СБРОСА ДЛЯ РАСЧЕТА НОВОГО КОДА
     if st.button("🔄 Рассчитать новую дату рождения"):
         st.session_state.stage = 1
         st.session_state.num_code = None
