@@ -31,6 +31,21 @@ st.markdown(f"""
         div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
         div[data-testid="stNotification"] {{ background-color: #2a244d !important; color: #ffffff !important; border-radius: 12px !important; border: 2px solid #f1c40f !important; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); }}
         div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
+        
+        /* Стилизация новой безопасной ссылки-кнопки */
+        .tg-safe-btn {{
+            display: block;
+            text-align: center;
+            background: linear-gradient(90deg, #6c5ce7, #d946ef);
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-decoration: none !important;
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
+            margin: 15px auto 25px auto;
+            width: 85%;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -115,10 +130,15 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # ЖЕСТКАЯ СБОРКА АДРЕСА ПО СТАНДАРТУ TELEGRAM БЕЗ ОПЕЧАТОК ОДНОЙ СТРОКОЙ:
-        tg_share_link = f"https://t.me" + urllib.parse.quote(f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot")
+        # Безопасная сборка URL без открытия новой вкладки
+        site_url = "https://streamlit.app"
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
+        encoded_text = urllib.parse.quote(share_text)
         
-        st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
+        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
+        
+        # ИСПОЛЬЗУЕМ TARGET="_SELF" (Открывает Telegram прямо в текущем окне, обходя белый экран блокировки)
+        st.markdown(f'<a href="{tg_share_link}" target="_self" class="tg-safe-btn">✈️ Поделиться результатом в Telegram</a>', unsafe_allow_html=True)
         
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🪐 Начать новый расчет", key="reset_app"):
