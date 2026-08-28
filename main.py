@@ -11,7 +11,10 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
-TELEGRAM_CHAT_ID = ID: 982947729  # Ваш личный цифровой ID для получения лидов
+
+
+# И вместо неё ВСТАВЬТЕ эту чистую правильную строчку:
+TELEGRAM_CHAT_ID = 982947729
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
