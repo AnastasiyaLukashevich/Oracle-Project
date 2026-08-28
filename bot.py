@@ -26,10 +26,15 @@ except:
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
+    # Защищенное считывание аргумента 'report' из строки /start report
     text_args = message.text.split()
+    is_report = False
+    
+    if len(text_args) > 1 and "report" in text_args[1].lower():
+        is_report = True
     
     # --- СЦЕНАРИЙ 1: ПОЛЬЗОВАТЕЛЬ ПРИШЕЛ С САЙТА ЗА ПОЛНЫМ ОТЧЕТОМ ---
-    if len(text_args) > 1 and text_args[1] == 'report':
+    if is_report:
         full_report_text = (
             "📊 **ВАШ РАСШИРЕННЫЙ КАРМИЧЕСКИЙ ОТЧЕТ И СТРАТЕГИЯ ПРОРЫВА**\n\n"
             "Поздравляем! Вы успешно прошли глубокое сканирование матрицы ума. "
@@ -48,6 +53,7 @@ def send_start(message):
         
     # --- СЦЕНАРИЙ 2: ОБЫЧНЫЙ ПЕРВЫЙ ЗАПУСК БОТА ---
     else:
+        # Исправлено: убрано двойное https://
         reply = (
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
             "Оцифруй свою дату рождения, чтобы за 2 шага выявить скрытые ментальные блоки в сфере денег и узнать точную причину слива энергии.\n\n"
