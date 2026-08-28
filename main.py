@@ -158,22 +158,3 @@ st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
     if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
         with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
-
-# --- ФОНОВЫЙ ОБРАБОТЧИК ВХОДЯЩИХ КОМАНД TELEGRAM ---
-try:
-    updates_resp = requests.get(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/getUpdates", timeout=2).json()
-    if updates_resp.get("ok") and updates_resp.get("result"):
-        for update in updates_resp["result"]:
-            if "message" in update and "text" in update["message"]:
-                chat_id = update["message"]["chat"]["id"]
-                text = update["message"]["text"].strip()
-                reply_text = ""
-                
-                if text in ["/start", "start"]:
-                    reply_text = "🔮 **Система Digital Oracle OS активирована!**\n\nДля запуска сканирования матрицы и расчета Кода Судьбы перейдите по ссылке на защищенную веб-платформу:\n🔗 https://streamlit.app"
-                elif text in ["/about", "about"]:
-                    reply_text = "✨ **О проекте Digital Oracle OS**\n\nЭто интеллектуальная экспертная система, объединяющая методы современной прикладной психологии, нумерологические алгоритмы Python и анализ ментальных блоков застоя.\n\nРазработчик: @Lu4ek_bot"
-                elif text in ["/admin", "admin"]:
-                    reply_text = "🔑 **Доступ к панели управления ограничен.**\n\nБаза лидов выгружается строго через защищенный криптографический SSL-интерфейс веб-платформы Streamlit во вкладке Admin."
-                
-                if reply_text:
