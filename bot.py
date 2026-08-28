@@ -15,12 +15,12 @@ def run_web_server():
     app.run(host="0.0.0.0", port=port)
 
 # --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
-TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
+TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
-    reply = "🔮 **Система Digital Oracle OS активирована!**\n\nЧтобы рассчитать свой Код Судьбы и пройти диагностику подсознания, перейдите на нашу интерактивную веб-платформу:\n🔗 https://oracle-by-lu4ek.streamlit.app/"
+    reply = "🔮 **Система Digital Oracle OS активирована!**\n\nЧтобы рассчитать свой Код Судьбы и пройти диагностику подсознания, перейдите на нашу интерактивную веб-платформу:\n🔗 https://streamlit.app"
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 @bot.message_handler(commands=['about'])
@@ -30,13 +30,15 @@ def send_about(message):
 
 @bot.message_handler(commands=['admin'])
 def send_admin(message):
-# ВСТАВЬТЕ этот код строго на то же место в самый низ файла bot.py:
+    reply = "🔑 **Доступ ограничен.**\n\nБаза лидов выгружается строго через защищенный SSL-интерфейс веб-платформы Streamlit во вкладке Admin."
+    bot.reply_to(message, reply, parse_mode="Markdown")
+
 if __name__ == "__main__":
     server_thread = Thread(target=run_web_server)
     server_thread.daemon = True
     server_thread.start()
     
-    # Принудительно очищаем зависшие сетевые запросы Telegram для удаления ошибки 409
+    # Сброс зависших сессий Telegram для исключения конфликтов
     try:
         bot.remove_webhook()
     except:
@@ -44,8 +46,3 @@ if __name__ == "__main__":
         
     print("Telegram бот успешно запущен...")
     bot.infinity_polling(skip_pending=True)
-
-    
-    
-    print("Telegram бот успешно запущен...")
-    bot.infinity_polling()
