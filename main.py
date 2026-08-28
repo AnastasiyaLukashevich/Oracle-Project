@@ -10,8 +10,8 @@ from core_data import CORE_DATA
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
-TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
-TELEGRAM_CHAT_ID = 982947729  # Ваш личный цифровой ID для получения лидов
+TELEGRAM_BOT_TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
+TELEGRAM_CHAT_ID = ID: 982947729  # Ваш личный цифровой ID для получения лидов
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
