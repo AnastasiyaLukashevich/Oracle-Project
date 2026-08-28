@@ -1,5 +1,5 @@
 import os
-import streamlit as st
+import streamlit st
 from datetime import date, datetime
 import requests
 import urllib.parse
@@ -10,9 +10,7 @@ from core_data import CORE_DATA
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
-TELEGRAM_BOT_TOKEN = "7786619038:AAERLX0PyfEJVZMdTpF-1dSHeMrsoyswTKA"
-
-# ВСТАВЬТЕ СЮДА ВАШ ЛИЧНЫЙ ЦИФРОВОЙ ID ИЗ @userinfobot (БЕЗ КАВЫЧЕК!)
+TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 TELEGRAM_CHAT_ID = 982947729  
 
 COLOR_MAP = {
@@ -63,12 +61,12 @@ def save_lead(contact, birth_date, num_key):
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
 if st.session_state.stage == 1:
-    st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
+    st.markdown("### 🪐 Шаг I: Творение персональной матрицы")
     with st.form("stage1_form"):
         user_date = st.date_input("Выберите вашу дату рождения:", value=date(1997, 8, 5), min_value=date(1920, 1, 1), max_value=date.today())
-        user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
+        user_contact = st.text_input("Ваш Telegram-никнейм для активации ключа:", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact: st.error("Пожалуйста, заполните поле Telegram-никнейм.")
+            if not user_contact: st.error("Пожалуйста, введите ваш Telegram-никнейм.")
             else:
                 num_code = calculate_numerology_number(user_date)
                 save_lead(user_contact, user_date, num_code)
@@ -90,7 +88,7 @@ else:
     """, unsafe_allow_html=True)
     
     st.markdown("<hr>", unsafe_allow_html=True)
-    st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
+    st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
     c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
     c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'])
     
@@ -106,7 +104,7 @@ else:
         """, unsafe_allow_html=True)
         
         # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ ---
-        site_url = "https://streamlit.app"
+        site_url = "https://oracle-by-lu4ek.streamlit.app/"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
