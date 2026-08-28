@@ -11,7 +11,7 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
-TELEGRAM_CHAT_ID = 982947729  
+TELEGRAM_CHAT_ID = 982947729  # Ваш личный цифровой ID для получения лидов
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
@@ -33,7 +33,6 @@ st.markdown(f"""
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
         
-        /* Стили для адаптивных мобильных блоков расшифровки */
         .neon-box {{
             background-color: #16122c !important;
             padding: 18px !important;
@@ -54,7 +53,14 @@ def calculate_numerology_number(birth_date):
 
 def save_lead(contact, birth_date, num_key):
     try:
-        msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Клиент:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}\n\nАдминистратор: @AnastasiyaLukashevich"
+        # ЛАКОНИЧНОЕ КРАТКОЕ ОПИСАНИЕ ЛИДА ДЛЯ АДМИНИСТРАТОРА
+        msg = (
+            f"⚡ **SYSTEM: Новый лид в системе!**\n\n"
+            f"👤 **Юзер:** {contact}\n"
+            f"📅 **Дата рождения:** {birth_date.strftime('%d.%m.%Y')}\n"
+            f"🔢 **Код матрицы:** Число {num_key}\n\n"
+            f"Администратор: @AnastasiyaLukashevich"
+        )
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
@@ -77,7 +83,6 @@ else:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
     
-    # --- АДАПТИВНЫЙ ВЫВОД СФЕР ЖИЗНИ ЧЕРЕЗ HTML С АВТОПЕРЕНОСОМ СТРОК ---
     st.markdown(f"""
         <div class="neon-box" style="border-left: 5px solid #ff0055;">
             <span style="color: #ff0055; font-weight: bold;">{profile['psychology']}</span>
@@ -103,8 +108,8 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ ---
-        site_url = "https://streamlit.app"
+        # --- СБОРКА ТЕКСТА ШЕРА С ВАШИМ АДРЕСОМ СВЯЗКИ ---
+        site_url = "https://oracle-by-lu4ek.streamlit.app/"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
