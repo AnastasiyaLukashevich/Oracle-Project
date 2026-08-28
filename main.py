@@ -1,5 +1,5 @@
 import os
-import streamlit st
+import streamlit as st
 from datetime import date, datetime
 import requests
 import urllib.parse
@@ -104,7 +104,7 @@ else:
         """, unsafe_allow_html=True)
         
         # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ ---
-        site_url = "https://oracle-by-lu4ek.streamlit.app/"
+        site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
