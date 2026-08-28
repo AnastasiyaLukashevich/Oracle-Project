@@ -54,6 +54,7 @@ def calculate_numerology_number(birth_date):
 
 def save_lead(contact, date_text, num_key):
     try:
+        # УВЕДОМЛЕНИЕ О РЕГИСТРАЦИИ (ШАГ I)
         msg = (
             f"⚡ **SYSTEM: Новый лид в системе!**\n\n"
             f"👤 **Юзер:** {contact}\n"
@@ -66,16 +67,17 @@ def save_lead(contact, date_text, num_key):
 
 def send_results_to_admin(contact, date_text, num_key, q1, a1, q2, a2, report):
     try:
+        # ИНФОРМАЦИЯ ДЛЯ АДМИНИСТРАТОРА О ПОЛНОМ ПРОХОЖДЕНИИ ТЕСТА С НИКОМ ПОЛЬЗОВАТЕЛЯ
         msg = (
-            f"📊 **SYSTEM: Результаты сканирования подсознания**\n\n"
-            f"👤 **Контакты клиента:** {contact}\n"
+            f"📊 **SYSTEM: Пользователь полностью прошёл тест!**\n\n"
+            f"👤 **Ник пользователя:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
             f"❓ **Вопрос 1:** {q1}\n"
             f"📥 **Свободный ответ клиента:** {a1}\n\n"
             f"❓ **Вопрос 2:** {q2}\n"
             f"📥 **Свободный ответ клиента:** {a2}\n\n"
-            f"📝 **Итоговый вердикт:** {report}\n\n"
+            f"📝 **Итоговый вердикт сайта:** {report}\n\n"
             f"Администратор: @AnastasiyaLukashevich"
         )
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
@@ -115,18 +117,16 @@ else:
         </div>
     """, unsafe_allow_html=True)
     
-
-<a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
-
+    st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
     
     c1 = st.text_input(f"**1. {profile['q1']}**", placeholder="Напишите ваш ответ своими словами...")
     c2 = st.text_input(f"**2. {profile['q2']}**", placeholder="Опишите ваши мысли здесь...")
     
-    # --- ВЫНЕСЕННАЯ ПУЛЬСИРУЮЩАЯ КНОПКА ПРИЗЫВА К БОТУ (ВИДНА ВСЕГДА НА ШАГЕ II) ---
+    # --- СИСТЕМНЫЙ ДИПЛИНК ВНУТРИ ДИЗАЙНА ДЛЯ ПРЯМОГО ОТКРЫТИЯ ПРИЛОЖЕНИЯ TELEGRAM ---
     st.markdown(f"""
         <div style="text-align: center; margin: 20px auto; width: 100%;">
-            <a href="https://t.me" target="_blank" style="text-decoration: none;">
+            <a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
                 <div style="background: linear-gradient(90deg, #d946ef, #ff0055); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 15px; box-shadow: 0 0 20px rgba(217, 70, 239, 0.6); border: 1px solid #ffffff33;">
                     🔮 ХОЧЕШЬ УЗНАТЬ ПОЛНЫЙ РЕЗУЛЬТАТ? НАПИШИ БОТУ!
                 </div>
@@ -155,7 +155,7 @@ else:
                 final_report
             )
             
-            site_url = "https://oracle-by-lu4ek.streamlit.app"
+            site_url = "https://oracle-by-lu4ek.streamlit.app/"
             share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
             
             encoded_url = urllib.parse.quote(site_url)
