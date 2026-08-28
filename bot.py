@@ -15,12 +15,12 @@ def run_web_server():
     app.run(host="0.0.0.0", port=port)
 
 # --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
-TOKEN = "7786619038:AAERLX0PyfEJVZMdTpF-1dSHeMrsoyswTKA"
+TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
-    reply = "🔮 **Система Digital Oracle OS активирована!**\n\nЧтобы рассчитать свой Код Судьбы и пройти диагностику подсознания, перейдите на нашу интерактивную веб-платформу:\n🔗 https://streamlit.app"
+    reply = "🔮 **Система Digital Oracle OS активирована!**\n\nЧтобы рассчитать свой Код Судьбы и пройти диагностику подсознания, перейдите на нашу интерактивную веб-платформу:\n🔗 https://oracle-by-lu4ek.streamlit.app/"
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 @bot.message_handler(commands=['about'])
