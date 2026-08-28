@@ -81,8 +81,8 @@ else:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # --- ФИНАЛЬНАЯ КОРРЕКТНАЯ ССЫЛКА РАЗДЕЛЬНОГО ПРОТОКОЛА ---
-        site_url = "https://streamlit.app"
+        # --- ФИНАЛЬНАЯ СБОРКА ССЫЛКИ С ТОЧНЫМ АДРЕСОМ ВАШЕГО САЙТА ---
+        site_url = "https://oracle-by-lu4ek.streamlit.app/"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
         
         encoded_url = urllib.parse.quote(site_url)
