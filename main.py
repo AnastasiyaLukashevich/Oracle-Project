@@ -11,7 +11,7 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
-TELEGRAM_CHAT_ID = "982947729"
+TELEGRAM_CHAT_ID = "982947729"  # Серверный ID вашего чата для приема уведомлений
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
@@ -46,7 +46,8 @@ def calculate_numerology_number(birth_date):
 
 def save_lead(contact, birth_date, num_key):
     try:
-        msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Контакт:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}"
+        # Уведомление с жесткой отметкой вашего личного аккаунта @AnastasiyaLukashevich
+        msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Клиент:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}\n\nАдминистратор: @AnastasiyaLukashevich"
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
@@ -81,8 +82,8 @@ else:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ НА ВАШ САЙТ И ВАШ БОТ @Lu4ek_bot ---
-        site_url = "https://oracle-by-lu4ek.streamlit.app/"
+        # --- СБОРКА ТЕКСТА ШЕРА С ВАШИМ АДРЕСОМ САЙТА И ВАШИМ БОТОМ @Lu4ek_bot ---
+        site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
