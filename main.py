@@ -15,6 +15,7 @@ current_accent_color = "#6c5ce7"
 
 if "stage" not in st.session_state: st.session_state.stage = 1
 if "num_code" not in st.session_state: st.session_state.num_code = None
+if "error_text" not in st.session_state: st.session_state.error_text = None
 
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
@@ -68,36 +69,35 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# --- РАЗДЕЛЕНИЕ ОТОБРАЖЕНИЯ ЧЕРЕЗ ИЗОЛИРОВАННЫЕ БЛОКИ ---
+# --- ЭТАП 1: ШАГ I ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     
     user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="input_date")
     user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="input_contact")
     
-    # Создаем контролируемый контейнер для вывода ошибок
-    error_container = st.empty()
-    
     if st.button("🔑 Рассчитать Код Судьбы", key="btn_submit1"):
         if not user_contact or not user_date_str: 
-            error_container.error("Заполните все поля.")
+            st.session_state.error_text = "Заполните все поля."
         else:
             try:
                 clean_str = "".join(user_date_str.strip().rstrip('.').split())
                 user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
                 num_code = calculate_numerology_number(user_date)
                 
-                # Полностью очищаем контейнер перед переключением экрана
-                error_container.empty()
-                
                 save_lead(user_contact, user_date, num_code)
                 st.session_state.num_code = num_code
+                st.session_state.error_text = None  # Обнуляем текст ошибки при успехе
                 st.session_state.stage = 2
                 st.rerun()
             except:
-                error_container.error("❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997")
+                st.session_state.error_text = "❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997"
 
-# --- ЭТАП 2: ВКУЧАЕТСЯ ТОЛЬКО ЕСЛИ STAGE == 2 ---
+    # ВЫВОДИМ ОШИБКУ СТРОГО ЕСЛИ КОД ЕЩЕ НЕ РАССЧИТАН
+    if st.session_state.error_text and st.session_state.num_code is None:
+        st.error(st.session_state.error_text)
+
+# --- ЭТАП 2: ШАГ II ---
 if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
@@ -128,6 +128,7 @@ if st.session_state.stage == 2:
     if st.button("🪐 Начать новый расчет", key="reset_app"):
         st.session_state.stage = 1
         st.session_state.num_code = None
+        st.session_state.error_text = None  # Обнуляем ошибку при полном перезапуске
         st.rerun()
 
 # --- СЕКРЕТНАЯ АДМИНКА ---
