@@ -103,5 +103,5 @@ if st.session_state.stage == 2:
 
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
+    if st.text_input("Пароль:Lu4ek_is_awesome97", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
         with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу", data=file, file_name="leads.txt")
