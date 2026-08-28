@@ -16,7 +16,7 @@ def run_web_server():
 
 # --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
 TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
-bot = telebot.TeleBot(7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10)
+bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
