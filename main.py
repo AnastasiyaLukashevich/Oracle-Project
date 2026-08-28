@@ -21,6 +21,8 @@ current_accent_color = "#6c5ce7"
 
 if "stage" not in st.session_state: st.session_state.stage = 1
 if "num_code" not in st.session_state: st.session_state.num_code = None
+if "user_contact" not in st.session_state: st.session_state.user_contact = ""
+if "user_birth_date" not in st.session_state: st.session_state.user_birth_date = ""
 
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
@@ -64,6 +66,23 @@ def save_lead(contact, birth_date, num_key):
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
+def send_results_to_admin(contact, birth_date, num_key, q1, a1, q2, a2, report):
+    try:
+        # ПОЛНЫЙ ОТЧЕТ ОБ ОТВЕТАХ КЛИЕНТА ДЛЯ АДМИНИСТРАТОРА
+        msg = (
+            f"📊 **SYSTEM: Результаты сканирования подсознания**\n\n"
+            f"👤 **Юзер:** {contact}\n"
+            f"🔢 **Код матрицы:** Число {num_key}\n\n"
+            f"❓ **Вопрос 1:** {q1}\n"
+            f"📥 **Ответ клиента:** {a1}\n\n"
+            f"❓ **Вопрос 2:** {q2}\n"
+            f"📥 **Ответ клиента:** {a2}\n\n"
+            f"📝 **Итоговый вердикт:** {report}\n\n"
+            f"Администратор: @AnastasiyaLukashevich"
+        )
+        requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
+    except: pass
+
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
 if st.session_state.stage == 1:
@@ -77,6 +96,8 @@ if st.session_state.stage == 1:
                 num_code = calculate_numerology_number(user_date)
                 save_lead(user_contact, user_date, num_code)
                 st.session_state.num_code = num_code
+                st.session_state.user_contact = user_contact
+                st.session_state.user_birth_date = user_date
                 st.session_state.stage = 2
                 st.rerun()
 else:
@@ -108,7 +129,30 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # --- СБОРКА ТЕКСТА ШЕРА С ВАШИМ АДРЕСОМ СВЯЗКИ ---
+        # ОТПРАВЛЯЕМ ПОЛНЫЕ РЕЗУЛЬТАТЫ АДМИНИСТРАТОРУ
+        send_results_to_admin(
+            st.session_state.user_contact,
+            st.session_state.user_birth_date,
+            st.session_state.num_code,
+            profile['q1'], c1,
+            profile['q2'], c2,
+            final_report
+        )
+        
+        # --- БАННЕР С ПРИЗЫВОМ ЗАБРАТЬ ПОЛНЫЙ ОТЧЕТ В БОТЕ ---
+        st.markdown(f"""
+            <div class="neon-box" style="border: 1px dashed #d946ef; background: linear-gradient(180deg, #16122c, #24143a); text-align: center; margin-top: 25px;">
+                <h4 style="color: #d946ef; margin-bottom: 8px;">📊 Нужен ПОЛНЫЙ разбор матрицы?</h4>
+                <p style="color: #e0def2; font-size: 14px; margin-bottom: 15px;">Если вам нужен расширенный отчет по всем сферам жизни и пошаговая стратегия выхода из застоя, напишите нашему боту!</p>
+                <a href="https://t.me" target="_blank" style="text-decoration: none;">
+                    <div style="background: linear-gradient(90deg, #d946ef, #6c5ce7); color: white !important; padding: 10px 20px; border-radius: 20px; font-weight: bold; display: inline-block; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4);">
+                        🔮 СКАЧАТЬ ПОЛНЫЙ ОТЧЕТ В БОТЕ
+                    </div>
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # --- СБОРКА ТЕКСТА ШЕРА ---
         site_url = "https://oracle-by-lu4ek.streamlit.app/"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
