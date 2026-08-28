@@ -59,7 +59,7 @@ CORE_DATA = {
     "3": {
         "title": "Код Судьбы: 3 — Творец и Изобилие", "psychology": P_3, "advice": A_3,
         "q1": "Куда вы сливаете энергию созидания?", "ans1": ["В бесконечные доработки", "В бытовую рутину", "В чужие проекты"],
-        "q2": "Какая среда для написания текстов ближе?", "ans2": ["Одиночество и тишина", "Кафе среди людей", "Жесткий график"],
+        "q2": "Какая среда для написания текстов ближе?", "ans2": ["Полное одиночество и тишина", "Работа в кафе среди людей", "Жесткий график"],
         "r": ["Ваш творческий застой — это истощение матрицы. Нужна эстетика.", "Вы застряли в ловушке улучшений. Выпускайте MVP.", "Идеальный баланс! Энергия находится в зените."]
     },
     "default": {
@@ -90,7 +90,6 @@ st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsaf
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     with st.form("stage1_form"):
-        # НАДЁЖНЫЙ КАЛЕНДАРЬ ВМЕСТО РУЧНОГО ТЕКСТОВОГО ВВОДА
         user_date = st.date_input("Выберите вашу дату рождения:", value=date(1997, 8, 5), min_value=date(1920, 1, 1), max_value=date.today())
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
         
@@ -123,13 +122,15 @@ else:  # ЭТАП 2
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # Настройка стабильной ссылки-шера
+        # --- АВТОМАТИЧЕСКАЯ СБОРКА ССЫЛКИ ИЗБЕГАЮЩАЯ ОШИБОК СКЛЕИВАНИЯ СТРОК ---
         site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
-        encoded_text = urllib.parse.quote(share_text)
-        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
         
-        # Безопасная HTML-кнопка, которая работает на 100% мобильных устройств
+        # Системное кодирование параметров через urlencode (двоеточие гарантированно защищено)
+        params = {"url": site_url, "text": share_text}
+        tg_share_link = f"https://t.me?{urllib.parse.urlencode(params)}"
+        
+        # Безопасная HTML-кнопка
         st.markdown(f"""
             <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
                 <div style="
