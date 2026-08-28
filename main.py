@@ -10,7 +10,7 @@ from core_data import CORE_DATA
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
-TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
+TELEGRAM_BOT_TOKEN = "7786619038:AAERLX0PyfEJVZMdTpF-1dSHeMrsoyswTKA"
 
 # ВСТАВЬТЕ СЮДА ВАШ ЛИЧНЫЙ ЦИФРОВОЙ ID ИЗ @userinfobot (БЕЗ КАВЫЧЕК!)
 TELEGRAM_CHAT_ID = 982947729  
