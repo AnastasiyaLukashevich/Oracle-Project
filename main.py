@@ -6,7 +6,6 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- АВТОНОМНАЯ НАСТРОЙКА TELEGRAM БОТА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -19,7 +18,6 @@ if "num_code" not in st.session_state: st.session_state.num_code = None
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
 
-# --- ИНЪЕКЦИЯ КОНТРАСТНОГО НЕОНОВОГО ДИЗАЙНА (CSS) ---
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
@@ -27,33 +25,10 @@ st.markdown(f"""
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
-        .stTextInput input::placeholder {{ color: #b2bec3 !important; opacity: 1 !important; }}
-        
-        /* Фон вариантов ответа в тестах */
-        div[data-testid="stRadio"] {{ 
-            background-color: #1c1936 !important; 
-            padding: 15px !important; 
-            border-radius: 10px !important; 
-            border: 1px solid {current_accent_color}44 !important; 
-        }}
-        
-        /* Фон финального вердикта */
-        div[data-testid="stNotification"] {{
-            background-color: #2a244d !important; 
-            color: #ffffff !important;
-            border-radius: 12px !important;
-            border: 2px solid #f1c40f !important; 
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); 
-        }}
-        div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
+        div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
+        div[data-testid="stNotification"] {{ background-color: #2a244d !important; color: #ffffff !important; border-radius: 12px !important; border: 2px solid #f1c40f !important; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); }}
     </style>
 """, unsafe_allow_html=True)
-
-# --- ПОЛНАЯ БАЗА КОНТЕНТА ---
-P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
-A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
-P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
-A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой."
 
 CORE_DATA = {
     "3": {
@@ -81,40 +56,31 @@ def save_lead(contact, birth_date, num_key):
         msg = f"🔮 **Новый лид в Web App!**\n\n👤 **Контакт:** {contact}\n📅 **Дата:** {birth_date.strftime('%d.%m.%Y')}\n🔢 **Число:** {num_key}"
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
-    with open("leads.txt", "a", encoding="utf-8") as f:
-        f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {contact} | {birth_date.strftime('%d.%m.%Y')} | {num_key}\n")
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# --- РАЗДЕЛЕНИЕ ЭКРАНОВ ЧЕРЕЗ IF-ELSE ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     with st.form("stage1_form"):
         user_date = st.date_input("Выберите вашу дату рождения:", value=date(1997, 8, 5), min_value=date(1920, 1, 1), max_value=date.today())
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
-        
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact: 
-                st.error("Пожалуйста, заполните поле Telegram-никнейм.")
+            if not user_contact: st.error("Пожалуйста, заполните поле Telegram-никнейм.")
             else:
                 num_code = calculate_numerology_number(user_date)
                 save_lead(user_contact, user_date, num_code)
                 st.session_state.num_code = num_code
                 st.session_state.stage = 2
                 st.rerun()
-
-else:  # ЭТАП 2
+else:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
     st.info(profile['psychology'])
     st.success(profile['advice'])
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
-    
     c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
-    st.markdown("<br>", unsafe_allow_html=True)
     c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'])
-    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("📊 Скомпилировать финальный отчет"):
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
@@ -124,37 +90,16 @@ else:  # ЭТАП 2
         
         site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
-        
         encoded_site = urllib.parse.quote(site_url)
         encoded_text = urllib.parse.quote(share_text)
         tg_share_link = f"tg://msg_url?url={encoded_site}&text={encoded_text}"
         
         st.markdown(f"""
             <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
-                <div style="
-                    background: linear-gradient(90deg, #6c5ce7, #d946ef);
-                    color: white !important;
-                    text-align: center;
-                    padding: 14px 20px;
-                    border-radius: 25px;
-                    font-weight: bold;
-                    font-size: 16px;
-                    box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
-                    margin: 20px auto;
-                    width: 85%;
-                ">
-                    ✈️ ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ В TELEGRAM
-                </div>
+                <div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); margin: 20px auto; width: 85%;">✈️ ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ В TELEGRAM</div>
             </a>
         """, unsafe_allow_html=True)
-        
         if st.button("🔄 Начать новый расчет"):
             st.session_state.stage = 1
             st.session_state.num_code = None
             st.rerun()
-
-# --- СЕКРЕТНАЯ АДМИНКА ---
-st.markdown("<br><br><hr>", unsafe_allow_html=True)
-with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
-        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
