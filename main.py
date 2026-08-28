@@ -6,6 +6,7 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
+# --- НАСТРОЙКИ БОТА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -14,7 +15,6 @@ current_accent_color = "#6c5ce7"
 
 if "stage" not in st.session_state: st.session_state.stage = 1
 if "num_code" not in st.session_state: st.session_state.num_code = None
-if "form_error" not in st.session_state: st.session_state.form_error = None
 
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
@@ -33,14 +33,23 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
-A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
-P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
-A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой."
-
 CORE_DATA = {
-    "3": {"title": "Код Судьбы: 3 — Творец и Изобилие", "psychology": P_3, "advice": A_3, "q1": "Куда вы сливаете энергию созидания?", "ans1": ["В бесконечные доработки", "В бытовую рутину", "В чужие проекты"], "q2": "Какая среда для написания текстов ближе?", "ans2": ["Одиночество и тишина", "Кафе среди людей", "Жесткий график"], "r": ["Ваш творческий застой — это истощение матрицы. Нужна эстетика.", "Вы застряли в ловушке улучшений. Выпускайте MVP.", "Идеальный баланс! Энергия находится в зените."]},
-    "default": {"title": "Код Судьбы: Расчет завершен", "psychology": P_DEF, "advice": A_DEF, "q1": "Что блокирует ваше движение вперед?", "ans1": ["Страх критических замечаний", "Привычка к чужому графику", "Синдром самозванца"], "q2": "Что чувствуете при мысли о деньгах?", "ans2": ["Обида на текущую систему", "Страх, что ресурсы закончатся", "Азарт и понимание масштаба"], "r": ["Вам необходим жесткий фокус на личной независимости.", "Вы застряли в накоплении информации. Начните действовать.", "Отличный фундамент. Система готова к масштабированию."]}
+    "3": {
+        "title": "Код Судьбы: 3 — Творец и Изобилие", 
+        "psychology": "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами.", 
+        "advice": "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир.", 
+        "q1": "Куда вы сливаете энергию созидания?", "ans1": ["В бесконечные доработки", "В бытовую рутину", "В чужие проекты"], 
+        "q2": "Какая среда для написания текстов ближе?", "ans2": ["Одиночество и тишина", "Кафе среди людей", "Жесткий график"], 
+        "r": ["Ваш творческий застой — это истощение матрицы. Нужна эстетика.", "Вы застряли в ловушке улучшений. Выпускайте MVP.", "Идеальный баланс! Энергия находится в зените."]
+    },
+    "default": {
+        "title": "Код Судьбы: Расчет завершен", 
+        "psychology": "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей.", 
+        "advice": "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой.", 
+        "q1": "Что блокирует ваше движение вперед?", "ans1": ["Страх критических замечаний", "Привычка к чужому графику", "Синдром самозванца"], 
+        "q2": "Что чувствуете при мысли о деньгах?", "ans2": ["Обида на текущую систему", "Страх, что ресурсы закончатся", "Азарт и понимание масштаба"], 
+        "r": ["Вам необходим жесткий фокус на личной независимости.", "Вы застряли в накоплении информации. Начните действовать.", "Отличный фундамент. Система готова к масштабированию."]
+    }
 }
 
 def calculate_numerology_number(birth_date):
@@ -59,31 +68,33 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# ЖЕСТКОЕ РАЗДЕЛЕНИЕ ЭКРАНОВ ЧЕРЕЗ IF-ELSE
+# --- ЭТАП 1: БЕЗ ИСПОЛЬЗОВАНИЯ ST.FORM (РЕШАЕТ ПРОБЛЕМУ ЗАЛИПАНИЯ) ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
-    with st.form("stage1_form"):
-        user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="form_date_input")
-        user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="form_contact_input")
-        if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact or not user_date_str: 
-                st.session_state.form_error = "Заполните все поля."
-            else:
-                try:
-                    clean_str = "".join(user_date_str.strip().rstrip('.').split())
-                    user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
-                    num_code = calculate_numerology_number(user_date)
-                    save_lead(user_contact, user_date, num_code)
-                    st.session_state.form_error = None
-                    st.session_state.num_code = num_code
-                    st.session_state.stage = 2
-                    st.rerun()
-                except:
-                    st.session_state.form_error = "❌ Неверный формат даты! Пример: 05.08.1997"
-    if st.session_state.form_error:
-        st.error(st.session_state.form_error)
+    
+    user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="input_date")
+    user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="input_contact")
+    
+    if st.button("🔑 Рассчитать Код Судьбы", key="btn_submit1"):
+        if not user_contact or not user_date_str: 
+            st.error("Заполните все поля.")
+        else:
+            try:
+                # Очищаем строку от пробелов и точек, оставленных автопереводчиками
+                clean_str = "".join(user_date_str.strip().rstrip('.').split())
+                user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
+                num_code = calculate_numerology_number(user_date)
+                
+                # Сохраняем лид и переключаем экран БЕЗ перезаписи ошибок
+                save_lead(user_contact, user_date, num_code)
+                st.session_state.num_code = num_code
+                st.session_state.stage = 2
+                st.rerun()
+            except:
+                st.error("❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997")
 
-else:
+# --- ЭТАП 2: ТЕСТЫ И РЕЗУЛЬТАТЫ ---
+if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
     st.info(profile['psychology'])
@@ -101,9 +112,11 @@ else:
         st.markdown("---")
         final_report = profile['r'][idx]
         st.warning(final_report)
+        
         site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
         encoded_text = urllib.parse.quote(share_text)
+        
         tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
@@ -111,9 +124,9 @@ else:
     if st.button("🪐 Начать новый расчет", key="reset_app"):
         st.session_state.stage = 1
         st.session_state.num_code = None
-        st.session_state.form_error = None
         st.rerun()
 
+# --- СЕКРЕТНАЯ АДМИНКА ---
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
     if st.text_input("Пароль:", type="password", key="admin_password") == "supersecret2026" and os.path.exists("leads.txt"):
