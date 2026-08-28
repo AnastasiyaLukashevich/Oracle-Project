@@ -14,9 +14,15 @@ def run_web_server():
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
-# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
+# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА С НОВЫМ ТОКЕНОМ ---
 TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
 bot = telebot.TeleBot(TOKEN)
+
+# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ 409 ДО ЗАПУСКА КОМАНД
+try:
+    bot.remove_webhook()
+except:
+    pass
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
@@ -38,11 +44,5 @@ if __name__ == "__main__":
     server_thread.daemon = True
     server_thread.start()
     
-    # Сброс зависших сессий Telegram для исключения конфликтов
-    try:
-        bot.remove_webhook()
-    except:
-        pass
-        
     print("Telegram бот успешно запущен...")
     bot.infinity_polling(skip_pending=True)
