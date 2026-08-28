@@ -115,7 +115,9 @@ else:
         </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<hr>", unsafe_allow_html=True)
+
+<a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
+
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
     
     c1 = st.text_input(f"**1. {profile['q1']}**", placeholder="Напишите ваш ответ своими словами...")
