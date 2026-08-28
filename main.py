@@ -4,11 +4,12 @@ from datetime import date, datetime
 import requests
 import urllib.parse
 
-# Импортируем нашу вынесенную базу данных
+# Подключаем нашу внешнюю базу данных сфер жизни
 from core_data import CORE_DATA
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
+# --- АВТОНОМНАЯ НАСТРОЙКА TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -24,6 +25,7 @@ if "num_code" not in st.session_state: st.session_state.num_code = None
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
 
+# --- ИНЪЕКЦИЯ КОНТРАСТНОГО НЕОНОВОГО ДИЗАЙНА (CSS) ---
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
@@ -79,10 +81,13 @@ else:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # ЖЕСТКОЕ ВКЛЮЧЕНИЕ КОРРЕКТНОЙ ССЫЛКИ В ТЕКСТ КНОПКИ ШЕРА
-        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Пройди тест по ссылке: https://streamlit.app"
+        # --- ФИНАЛЬНАЯ КОРРЕКТНАЯ ССЫЛКА РАЗДЕЛЬНОГО ПРОТОКОЛА ---
+        site_url = "https://streamlit.app"
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
+        
+        encoded_url = urllib.parse.quote(site_url)
         encoded_text = urllib.parse.quote(share_text)
-        tg_share_link = f"tg://msg_url?text={encoded_text}"
+        tg_share_link = f"tg://msg_url?url={encoded_url}&text={encoded_text}"
         
         st.markdown(f"""
             <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
@@ -90,7 +95,7 @@ else:
             </a>
         """, unsafe_allow_html=True)
         
-    # НАДЁЖНАЯ ВЫНЕСЕННАЯ КНОПКА СБРОСА СЕССИИ ДЛЯ РАСЧЕТА НОВОЙ ДАТЫ
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Рассчитать новую дату рождения"):
         st.session_state.stage = 1
         st.session_state.num_code = None
