@@ -68,32 +68,36 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# --- ЭТАП 1: БЕЗ ИСПОЛЬЗОВАНИЯ ST.FORM (РЕШАЕТ ПРОБЛЕМУ ЗАЛИПАНИЯ) ---
+# --- РАЗДЕЛЕНИЕ ОТОБРАЖЕНИЯ ЧЕРЕЗ ИЗОЛИРОВАННЫЕ БЛОКИ ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     
     user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="input_date")
     user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="input_contact")
     
+    # Создаем контролируемый контейнер для вывода ошибок
+    error_container = st.empty()
+    
     if st.button("🔑 Рассчитать Код Судьбы", key="btn_submit1"):
         if not user_contact or not user_date_str: 
-            st.error("Заполните все поля.")
+            error_container.error("Заполните все поля.")
         else:
             try:
-                # Очищаем строку от пробелов и точек, оставленных автопереводчиками
                 clean_str = "".join(user_date_str.strip().rstrip('.').split())
                 user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
                 num_code = calculate_numerology_number(user_date)
                 
-                # Сохраняем лид и переключаем экран БЕЗ перезаписи ошибок
+                # Полностью очищаем контейнер перед переключением экрана
+                error_container.empty()
+                
                 save_lead(user_contact, user_date, num_code)
                 st.session_state.num_code = num_code
                 st.session_state.stage = 2
                 st.rerun()
             except:
-                st.error("❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997")
+                error_container.error("❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997")
 
-# --- ЭТАП 2: ТЕСТЫ И РЕЗУЛЬТАТЫ ---
+# --- ЭТАП 2: ВКУЧАЕТСЯ ТОЛЬКО ЕСЛИ STAGE == 2 ---
 if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
