@@ -88,25 +88,23 @@ st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsaf
 
 # --- ЭТАП 1 ---
 if st.session_state.stage == 1:
+    st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     with st.form("stage1_form"):
         user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997")
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact or not user_date_str: st.error("Заполните все поля.")
+            if not user_contact or not user_date_str: 
+                st.error("Заполните все поля.")
             else:
-                clean_str = "".join(user_date_str.strip().rstrip('.').split())
-                # Простая проверка длины строки вместо падающего try-except
-                if len(clean_str) == 10 and clean_str[2] == '.' and clean_str[5] == '.':
-                    try:
-                        user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
-                        num_code = calculate_numerology_number(user_date)
-                        save_lead(user_contact, user_date, num_code)
-                        st.session_state.num_code = num_code
-                        st.session_state.stage = 2
-                        st.rerun()
-                    except:
-                        st.error("❌ Неверный формат даты! Пример: 05.08.1997")
-                else:
+                try:
+                    clean_str = "".join(user_date_str.strip().rstrip('.').split())
+                    user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
+                    num_code = calculate_numerology_number(user_date)
+                    save_lead(user_contact, user_date, num_code)
+                    st.session_state.num_code = num_code
+                    st.session_state.stage = 2
+                    st.rerun()
+                except:
                     st.error("❌ Неверный формат даты! Пример: 05.08.1997")
 
 # --- ЭТАП 2 ---
