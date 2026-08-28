@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from datetime import datetime
+from datetime import date, datetime
 import requests
 import urllib.parse
 
@@ -23,7 +23,7 @@ if st.session_state.num_code in COLOR_MAP:
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
-        .stTextInput input {{ background-color: #16122c !important; color: {current_accent_color} !important; border: 1px solid {current_accent_color} !important; border-radius: 8px !important; }}
+        .stTextInput input, div[data-testid="stDateInput"] input {{ background-color: #16122c !important; color: {current_accent_color} !important; border: 1px solid {current_accent_color} !important; border-radius: 8px !important; }}
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
@@ -90,22 +90,19 @@ st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsaf
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     with st.form("stage1_form"):
-        user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997")
+        # НАДЁЖНЫЙ КАЛЕНДАРЬ ВМЕСТО РУЧНОГО ТЕКСТОВОГО ВВОДА
+        user_date = st.date_input("Выберите вашу дату рождения:", value=date(1997, 8, 5), min_value=date(1920, 1, 1), max_value=date.today())
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
+        
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact or not user_date_str: 
-                st.error("Заполните все поля.")
+            if not user_contact: 
+                st.error("Пожалуйста, заполните поле Telegram-никнейм.")
             else:
-                try:
-                    clean_str = "".join(user_date_str.strip().rstrip('.').split())
-                    user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
-                    num_code = calculate_numerology_number(user_date)
-                    save_lead(user_contact, user_date, num_code)
-                    st.session_state.num_code = num_code
-                    st.session_state.stage = 2
-                    st.rerun()
-                except:
-                    st.error("❌ Неверный формат даты! Пример: 05.08.1997")
+                num_code = calculate_numerology_number(user_date)
+                save_lead(user_contact, user_date, num_code)
+                st.session_state.num_code = num_code
+                st.session_state.stage = 2
+                st.rerun()
 
 else:  # ЭТАП 2
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
