@@ -6,8 +6,8 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- НАСТРОЙКИ БОТА ---
-TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
+# --- НАСТРОЙКИ БОТА (НОВЫЙ ТОКЕН ПРИМЕНЕН) ---
+TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 TELEGRAM_CHAT_ID = "982947729"
 
 COLOR_MAP = {"1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", "5": "#ff9f43", "6": "#ff7675", "7": "#01cbc6", "8": "#f1c40f", "9": "#ffffff"}
@@ -87,13 +87,12 @@ if st.session_state.stage == 1:
                 
                 save_lead(user_contact, user_date, num_code)
                 st.session_state.num_code = num_code
-                st.session_state.error_text = None  # Обнуляем текст ошибки при успехе
+                st.session_state.error_text = None  
                 st.session_state.stage = 2
                 st.rerun()
             except:
                 st.session_state.error_text = "❌ Неверный формат даты! Введите строго через точки. Пример: 05.08.1997"
 
-    # ВЫВОДИМ ОШИБКУ СТРОГО ЕСЛИ КОД ЕЩЕ НЕ РАССЧИТАН
     if st.session_state.error_text and st.session_state.num_code is None:
         st.error(st.session_state.error_text)
 
@@ -128,7 +127,7 @@ if st.session_state.stage == 2:
     if st.button("🪐 Начать новый расчет", key="reset_app"):
         st.session_state.stage = 1
         st.session_state.num_code = None
-        st.session_state.error_text = None  # Обнуляем ошибку при полном перезапуске
+        st.session_state.error_text = None  
         st.rerun()
 
 # --- СЕКРЕТНАЯ АДМИНКА ---
