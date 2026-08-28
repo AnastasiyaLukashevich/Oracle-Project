@@ -6,8 +6,8 @@ import requests
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА TELEGRAM БОТА (Впишите свои данные в кавычках) ---
-TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
-TELEGRAM_CHAT_ID = "@Lu4ek_bot"
+TELEGRAM_BOT_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
+TELEGRAM_CHAT_ID = "ВАШ_CHAT_ID_ОТ_USERINFOBOT"
 
 COLOR_MAP = {"1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", "5": "#ff9f43", "6": "#ff7675", "7": "#01cbc6", "8": "#f1c40f", "9": "#ffffff"}
 current_accent_color = "#6c5ce7"
@@ -28,11 +28,10 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-# --- МИНИМАЛЬНАЯ БАЗА ТЕКСТОВ (БЕЗ ДЛИННЫХ ПЕРЕНОСОВ СТРОК) ---
-P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
+P_3 = "Ваш financial застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
 A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
 P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
-A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продук, чтобы пробить ментальный застой."
+A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой."
 
 CORE_DATA = {
     "3": {
@@ -65,12 +64,14 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
+# --- ЭТАП 1 ---
 if st.session_state.stage == 1:
     with st.form("stage1_form"):
         user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997")
         user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact or not user_date_str: st.error("Заполните все поля.")
+            if not user_contact or not user_date_str: 
+                st.error("Заполните все поля.")
             else:
                 try:
                     clean_str = "".join(user_date_str.strip().rstrip('.').split())
@@ -80,14 +81,17 @@ if st.session_state.stage == 1:
                     st.session_state.num_code = num_code
                     st.session_state.stage = 2
                     st.rerun()
-                except: st.error("❌ Неверный формат! Пример: 05.08.1997")
+                except: 
+                    st.error("❌ Неверный формат! Пример: 05.08.1997")
 
+# --- ЭТАП 2 ---
 if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
     st.info(profile['psychology'])
     st.success(profile['advice'])
     st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
     
     c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
     c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'])
@@ -103,5 +107,5 @@ if st.session_state.stage == 2:
 
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:Lu4ek_is_awesome97", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
+    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
         with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу", data=file, file_name="leads.txt")
