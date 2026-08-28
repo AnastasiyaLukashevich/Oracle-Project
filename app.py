@@ -1,12 +1,12 @@
 import os
 import streamlit as st
-from datetime import datetime
+from datetime import date, datetime
 import requests
 import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- ФИНАЛЬНАЯ НАСТРОЙКА TELEGRAM БОТА ПОДКЛЮЧЕНА ---
+# --- НАСТРОЙКА TELEGRAM БОТА ПОДКЛЮЧЕНА (ВАШИ РЕАЛЬНЫЕ ДАННЫЕ) ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -19,6 +19,7 @@ if "num_code" not in st.session_state: st.session_state.num_code = None
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
 
+# --- ИНЪЕКЦИЯ КОНТРАСТНОГО НЕОНОВОГО ДИЗАЙНА (CSS) ---
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
@@ -26,9 +27,11 @@ st.markdown(f"""
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
+        
+        /* Читаемый светло-серый цвет для примеров ввода */
         .stTextInput input::placeholder {{ color: #b2bec3 !important; opacity: 1 !important; }}
         
-        /* Фон для вариантов ответов в тестах */
+        /* Мягкий фон вариантов ответа в тестах */
         div[data-testid="stRadio"] {{ 
             background-color: #1c1936 !important; 
             padding: 15px !important; 
@@ -36,22 +39,34 @@ st.markdown(f"""
             border: 1px solid {current_accent_color}44 !important; 
         }}
         
-        /* НОВОЕ ПРАВИЛО: Менее мрачный и контрастный фон для финального результата застоя */
+        /* Контрастный фон финального вердикта с золотым свечением */
         div[data-testid="stNotification"] {{
-            background-color: #2a244d !important; /* Мягкий светлый графит */
-            color: #fff !important;
-            border-radius: 12px !important;
-            border: 2px solid #f1c40f !important; /* Яркая золотая рамка */
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); /* Легкое свечение */
-        }}
-        div[data-testid="stNotification"] p {{
+            background-color: #2a244d !important; 
             color: #ffffff !important;
-            font-size: 16px !important;
-            font-weight: 500 !important;
+            border-radius: 12px !important;
+            border: 2px solid #f1c40f !important; 
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); 
+        }}
+        div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
+        
+        /* Стилизация безопасной ссылки 'Поделиться' */
+        .tg-share-link {{
+            display: block;
+            text-align: center;
+            background: linear-gradient(90deg, #6c5ce7, #d946ef);
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
+            margin: 15px auto 25px auto;
+            width: 85%;
         }}
     </style>
 """, unsafe_allow_html=True)
 
+# --- БАЗА КОНТЕНТА ---
 P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
 A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
 P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
@@ -125,15 +140,21 @@ if st.session_state.stage == 2:
         st.markdown("---")
         final_report = profile['r'][idx]
         st.warning(final_report)
+        
+        # Генерация безопасной виральной ссылки
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
         encoded_text = urllib.parse.quote(share_text)
-        st.markdown(f'<a href="https://t.me{encoded_text}" target="_blank" style="text-decoration: none;"><div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white; text-align: center; padding: 12px; border-radius: 20px; font-weight: bold; width: 90%; margin: 15px auto;">✈️ Поделиться результатом в Telegram</div></a>', unsafe_allow_html=True)
+        tg_share_link = f"https://t.me{encoded_text}"
+        
+        # Нативный безопасный линк-кнопка (Не вызывает ошибку about:blank#blocked)
+        st.markdown(f'<a href="{tg_share_link}" target="_blank" class="tg-share-link">✈️ Поделиться результатом в Telegram</a>', unsafe_allow_html=True)
+        
         if st.button("Перезапустить систему"):
             st.session_state.stage = 1
             st.session_state.num_code = None
             st.rerun()
 
-# --- СЕКРЕТНАЯ АДМИНКА + ВСТРОЕННЫЙ ТЕСТ БОТА ---
+# --- СЕКРЕТНАЯ АДМИНКА ---
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
     password_input = st.text_input("Пароль:", type="password")
