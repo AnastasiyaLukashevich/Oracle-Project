@@ -6,7 +6,7 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- НАСТРОЙКА TELEGRAM БОТА ПОДКЛЮЧЕНА (ВАШИ РЕАЛЬНЫЕ ДАННЫЕ) ---
+# --- АВТОНОМНАЯ НАСТРОЙКА TELEGRAM БОТА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -27,11 +27,9 @@ st.markdown(f"""
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
-        
-        /* Читаемый светло-серый цвет для примеров ввода */
         .stTextInput input::placeholder {{ color: #b2bec3 !important; opacity: 1 !important; }}
         
-        /* Мягкий фон вариантов ответа в тестах */
+        /* Фон вариантов ответа в тестах */
         div[data-testid="stRadio"] {{ 
             background-color: #1c1936 !important; 
             padding: 15px !important; 
@@ -39,7 +37,7 @@ st.markdown(f"""
             border: 1px solid {current_accent_color}44 !important; 
         }}
         
-        /* Контрастный фон финального вердикта с золотым свечением */
+        /* Фон финального вердикта */
         div[data-testid="stNotification"] {{
             background-color: #2a244d !important; 
             color: #ffffff !important;
@@ -48,25 +46,10 @@ st.markdown(f"""
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); 
         }}
         div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
-        
-        /* Стилизация безопасной ссылки 'Поделиться' */
-        .tg-share-link {{
-            display: block;
-            text-align: center;
-            background: linear-gradient(90deg, #6c5ce7, #d946ef);
-            color: white !important;
-            padding: 12px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
-            margin: 15px auto 25px auto;
-            width: 85%;
-        }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- БАЗА КОНТЕНТА ---
+# --- ПОЛНАЯ БАЗА КОНТЕНТА ---
 P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
 A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
 P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
@@ -141,13 +124,12 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # Генерация безопасной виральной ссылки
+        # Генерация нативной кнопки Поделиться
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
         encoded_text = urllib.parse.quote(share_text)
         tg_share_link = f"https://t.me{encoded_text}"
         
-        # Нативный безопасный линк-кнопка (Не вызывает ошибку about:blank#blocked)
-        st.markdown(f'<a href="{tg_share_link}" target="_blank" class="tg-share-link">✈️ Поделиться результатом в Telegram</a>', unsafe_allow_html=True)
+        st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
         if st.button("Перезапустить систему"):
             st.session_state.stage = 1
@@ -157,18 +139,5 @@ if st.session_state.stage == 2:
 # --- СЕКРЕТНАЯ АДМИНКА ---
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
-    password_input = st.text_input("Пароль:", type="password")
-    if password_input == "supersecret2026":
-        st.success("Доступ к панели открыт.")
-        
-        if st.button("⚡ Проверить связь с Telegram-ботом"):
-            test_url = f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage"
-            test_payload = {"chat_id": TELEGRAM_CHAT_ID, "text": "🚀 Проверка связи! Ваш IT-проект успешно подключен к Telegram."}
-            try:
-                res = requests.post(test_url, json=test_payload, timeout=5)
-                if res.status_code == 200: st.success("✅ Отлично! Бот работает правильно.")
-                else: st.error(f"❌ Код ответа сервера: {res.status_code}.")
-            except Exception as e: st.error(f"❌ Ошибка подключения: {e}")
-        
-        if os.path.exists("leads.txt"):
-            with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
+    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
+        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
