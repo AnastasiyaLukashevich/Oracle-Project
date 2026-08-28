@@ -6,8 +6,8 @@ import requests
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА TELEGRAM БОТА (Впишите свои данные в кавычках) ---
-TELEGRAM_BOT_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
-TELEGRAM_CHAT_ID = "ВАШ_CHAT_ID_ОТ_USERINFOBOT"
+TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
+TELEGRAM_CHAT_ID = "@Lu4ek_bot"
 
 COLOR_MAP = {"1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", "5": "#ff9f43", "6": "#ff7675", "7": "#01cbc6", "8": "#f1c40f", "9": "#ffffff"}
 current_accent_color = "#6c5ce7"
