@@ -25,11 +25,19 @@ st.markdown(f"""
         .stInfo {{ background-color: #1e1b4b !important; border-left: 5px solid {current_accent_color} !important; }}
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
+        
+        div[data-testid="stRadio"] {{
+            background-color: #1c1936 !important;
+            padding: 15px !important;
+            border-radius: 10px !important;
+            border: 1px solid {current_accent_color}44 !important;
+            box-shadow: 0 0 10px {current_accent_color}11;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
 P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
-A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
+A_3 = "Прекратите копить знания in голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
 P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
 A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой."
 
@@ -94,12 +102,41 @@ if st.session_state.stage == 2:
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
     
     c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
+    st.markdown("<br>", unsafe_allow_html=True)
     c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'])
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("📊 Скомпилировать финальный отчет"):
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
         st.markdown("---")
-        st.warning(profile['r'][idx])
+        
+        # Получаем текст результата
+        final_report = profile['r'][idx]
+        st.warning(final_report)
+        
+        # Динамический текст для отправки друзьям
+        share_text = f"Я прошел Digital Oracle и мой вердикт: {final_report} Узнай свой код застоя!"
+        
+        # --- СКРИПТ ВСТРОЕННОЙ КНОПКИ ПОДЕЛИТЬСЯ (WEB SHARE API) ---
+        st.markdown(f"""
+            <button onclick="navigator.share({{title: 'Digital Oracle', text: '{share_text}', url: window.location.href}})" 
+            style="
+                background: linear-gradient(90deg, #6c5ce7, #d946ef);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                width: 100%;
+                box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
+                margin-top: 15px;
+                margin-bottom: 25px;
+            ">
+                📢 Поделиться результатом
+            </button>
+        """, unsafe_allow_html=True)
+        
         if st.button("Перезапустить систему"):
             st.session_state.stage = 1
             st.session_state.num_code = None
