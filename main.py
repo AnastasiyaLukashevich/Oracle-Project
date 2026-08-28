@@ -13,24 +13,15 @@ TELEGRAM_CHAT_ID = "982947729"
 COLOR_MAP = {"1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", "5": "#ff9f43", "6": "#ff7675", "7": "#01cbc6", "8": "#f1c40f", "9": "#ffffff"}
 current_accent_color = "#6c5ce7"
 
+# Инициализация состояний сессии
 if "stage" not in st.session_state: st.session_state.stage = 1
 if "num_code" not in st.session_state: st.session_state.num_code = None
+if "form_error" not in st.session_state: st.session_state.form_error = None
 
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
 
-# --- УЛУЧШЕННАЯ ИНЪЕКЦИЯ СТИЛЕЙ С ПОДДЕРЖКОЙ Скрытия ОШИБОК ---
-hide_error_css = ""
-if st.session_state.stage == 2:
-    # Если мы на Шаге 2 — принудительно прячем форму Шага 1 и ЛЮБЫЕ блоки ошибок хостинга
-    hide_error_css = """
-        div[data-testid="stForm"] { display: none !important; }
-        .stException, div[data-testid="stNotification"]:has(.stIconException), 
-        div.element-container:has(div[data-testid="stNotification"] .stIconException) { display: none !important; }
-        /* Прячем старый красный блок ошибки формы, если кэш пытается его вывести */
-        .stApp div:has(> p:contains("Неверный формат")) { display: none !important; }
-    """
-
+# --- ИНЪЕКЦИЯ КОНТРАСТНОГО НЕОНОВОГО ДИЗАЙНА (CSS) ---
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
@@ -57,8 +48,6 @@ st.markdown(f"""
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); 
         }}
         div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
-        
-        {hide_error_css}
     </style>
 """, unsafe_allow_html=True)
 
@@ -77,7 +66,7 @@ CORE_DATA = {
     },
     "default": {
         "title": "Код Судьбы: Расчет завершен", "psychology": P_DEF, "advice": A_DEF,
-        "q1": "Что блокирует ваше движение вперед?", "ans1": ["Страх критических замечаний", "Привычка к чужому графику", "Синдром самозванца"],
+        "q1": "Что блокирует ваше movement вперед?", "ans1": ["Страх критических замечаний", "Привычка к чужому графику", "Синдром самозванца"],
         "q2": "Что чувствуете при мысли о деньгах?", "ans2": ["Обида на текущую систему", "Страх, что ресурсы закончатся", "Азарт и понимание масштаба"],
         "r": ["Вам необходим жесткий фокус на личной независимости.", "Вы застряли в накоплении информации. Начните действовать.", "Отличный фундамент. Система готова к масштабированию."]
     }
@@ -99,28 +88,34 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# --- ЭТАП 1 ---
+# --- ЭТАП ПЕРВЫЙ: ВВОД ДАННЫХ ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
     with st.form("stage1_form"):
-        user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997")
-        user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username")
+        user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="form_date_input")
+        user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="form_contact_input")
+        
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
             if not user_contact or not user_date_str: 
-                st.error("Заполните все поля.")
+                st.session_state.form_error = "Заполните все поля."
             else:
                 try:
                     clean_str = "".join(user_date_str.strip().rstrip('.').split())
                     user_date = datetime.strptime(clean_str, "%d.%m.%Y").date()
                     num_code = calculate_numerology_number(user_date)
                     save_lead(user_contact, user_date, num_code)
+                    
+                    st.session_state.form_error = None
                     st.session_state.num_code = num_code
                     st.session_state.stage = 2
                     st.rerun()
                 except:
-                    st.error("❌ Неверный формат даты! Пример: 05.08.1997")
+                    st.session_state.form_error = "❌ Неверный формат даты! Пример: 05.08.1997"
 
-# --- ЭТАП 2 ---
+    if st.session_state.form_error:
+        st.error(st.session_state.form_error)
+
+# --- ЭТАП ВТОРОЙ: ТЕСТЫ И РЕЗУЛЬТАТЫ ---
 if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
@@ -129,12 +124,12 @@ if st.session_state.stage == 2:
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование")
     
-    c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
+    c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'], key="radio_q1")
     st.markdown("<br>", unsafe_allow_html=True)
-    c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'])
+    c2 = st.radio(f"**2. {profile['q2']}**", profile['ans2'], key="radio_q2")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("📊 Скомпилировать финальный отчет"):
+    if st.button("📊 Скомпилировать финальный отчет", key="submit_stage2"):
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
         st.markdown("---")
         final_report = profile['r'][idx]
@@ -147,13 +142,16 @@ if st.session_state.stage == 2:
         tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
-        if st.button("Перезапустить систему"):
-            st.session_state.stage = 1
-            st.session_state.num_code = None
-            st.rerun()
+    # КНОПКА НОВОГО РАСЧЕТА (Отображается в самом низу Шага II)
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🪐 Начать новый расчет", key="reset_app"):
+        st.session_state.stage = 1
+        st.session_state.num_code = None
+        st.session_state.form_error = None
+        st.rerun()
 
 # --- СЕКРЕТНАЯ АДМИНКА ---
 st.markdown("<br><br><hr>", unsafe_allow_html=True)
 with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
-        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
+    if st.text_input("Пароль:", type="password", key="admin_password") == "supersecret2026" and os.path.exists("leads.txt"):
+        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt", key="download_leads")
