@@ -30,13 +30,22 @@ def send_about(message):
 
 @bot.message_handler(commands=['admin'])
 def send_admin(message):
-    reply = "🔑 **Доступ ограничен.**\n\nБаза лидов выгружается строго через защищенный SSL-интерфейс веб-платформы Streamlit во вкладке Admin."
-    bot.reply_to(message, reply, parse_mode="Markdown")
-
+# ВСТАВЬТЕ этот код строго на то же место в самый низ файла bot.py:
 if __name__ == "__main__":
     server_thread = Thread(target=run_web_server)
     server_thread.daemon = True
     server_thread.start()
+    
+    # Принудительно очищаем зависшие сетевые запросы Telegram для удаления ошибки 409
+    try:
+        bot.remove_webhook()
+    except:
+        pass
+        
+    print("Telegram бот успешно запущен...")
+    bot.infinity_polling(skip_pending=True)
+
+    
     
     print("Telegram бот успешно запущен...")
     bot.infinity_polling()
