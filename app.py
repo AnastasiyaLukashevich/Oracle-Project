@@ -6,7 +6,7 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- ФИНАЛЬНАЯ НАСТРОЙКА TELEGRAM БОТА ПОДДКЛЮЧЕНА ---
+# --- ФИНАЛЬНАЯ НАСТРОЙКА TELEGRAM БОТА ПОДКЛЮЧЕНА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -27,7 +27,28 @@ st.markdown(f"""
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         .stTextInput input::placeholder {{ color: #b2bec3 !important; opacity: 1 !important; }}
-        div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
+        
+        /* Фон для вариантов ответов в тестах */
+        div[data-testid="stRadio"] {{ 
+            background-color: #1c1936 !important; 
+            padding: 15px !important; 
+            border-radius: 10px !important; 
+            border: 1px solid {current_accent_color}44 !important; 
+        }}
+        
+        /* НОВОЕ ПРАВИЛО: Менее мрачный и контрастный фон для финального результата застоя */
+        div[data-testid="stNotification"] {{
+            background-color: #2a244d !important; /* Мягкий светлый графит */
+            color: #fff !important;
+            border-radius: 12px !important;
+            border: 2px solid #f1c40f !important; /* Яркая золотая рамка */
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); /* Легкое свечение */
+        }}
+        div[data-testid="stNotification"] p {{
+            color: #ffffff !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
