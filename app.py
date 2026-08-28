@@ -6,8 +6,8 @@ import requests
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА TELEGRAM БОТА (Впишите свои данные) ---
-TELEGRAM_BOT_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
-TELEGRAM_CHAT_ID = "ВАШ_CHAT_ID_ОТ_USERINFOBOT"
+TELEGRAM_BOT_TOKEN = "7786619038:AAGDbcMRh7sLbfMsYwAgBG4Ro7tho9AvJNk"
+TELEGRAM_CHAT_ID = "@Lu4ek_bot"
 
 # --- КАРТА ДИНАМИЧЕСКИХ ЦВЕТОВ ---
 COLOR_MAP = {
