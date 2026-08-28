@@ -124,13 +124,14 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # Генерация нативной кнопки Поделиться
-        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
+        # Ссылка ведёт на внешний сайт Streamlit, а текст пиарит вашего бота @Lu4ek_bot
+        site_url = "https://streamlit.app"
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
         encoded_text = urllib.parse.quote(share_text)
         
-        # ПРЯМАЯ ССЫЛКА НА ВАШЕГО БОТА @Lu4ek_bot С ПОДСТАНОВКОЙ ТЕКСТА
-        tg_share_link = f"https://t.me{encoded_text}"
+        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
         
+        # Нативная и железно рабочая кнопка без HTML
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
         if st.button("Перезапустить систему"):
