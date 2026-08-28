@@ -6,7 +6,7 @@ import urllib.parse
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- НАСТРОЙКИ БОТА (НОВЫЙ ТОКЕН ПРИМЕНЕН) ---
+# --- СНАЙПЕРСКИ НАСТРОЕННЫЕ ДАННЫЕ БОТА ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -69,10 +69,9 @@ def save_lead(contact, birth_date, num_key):
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
-# --- ЭТАП 1: ШАГ I ---
+# --- ШАГ I ---
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Точка входа в матрицу")
-    
     user_date_str = st.text_input("Укажите вашу дату рождения в формате ДД.ММ.ГГГГ:", placeholder="05.08.1997", key="input_date")
     user_contact = st.text_input("Ваш Telegram-никнейм (для активации ключа):", placeholder="@username", key="input_contact")
     
@@ -96,7 +95,7 @@ if st.session_state.stage == 1:
     if st.session_state.error_text and st.session_state.num_code is None:
         st.error(st.session_state.error_text)
 
-# --- ЭТАП 2: ШАГ II ---
+# --- ШАГ II ---
 if st.session_state.stage == 2:
     profile = CORE_DATA.get(st.session_state.num_code, CORE_DATA["default"])
     st.header(f"✨ {profile['title']}")
@@ -116,11 +115,9 @@ if st.session_state.stage == 2:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        site_url = "https://streamlit.app"
-        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot"
-        encoded_text = urllib.parse.quote(share_text)
+        # ЖЕСТКАЯ СБОРКА АДРЕСА ПО СТАНДАРТУ TELEGRAM БЕЗ ОПЕЧАТОК ОДНОЙ СТРОКОЙ:
+        tg_share_link = f"https://t.me" + urllib.parse.quote(f"Прошел Digital Oracle. Мой вердикт застоя: {final_report} Разблокируй свой код в боте @Lu4ek_bot")
         
-        tg_share_link = f"https://t.me{site_url}&text={encoded_text}"
         st.link_button("✈️ Поделиться результатом в Telegram", tg_share_link, type="primary")
         
     st.markdown("<br>", unsafe_allow_html=True)
