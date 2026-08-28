@@ -1,6 +1,21 @@
+import os
+from flask import Flask
 import telebot
+from threading import Thread
 
-# --- ОБНОВЛЕННЫЙ ТОКЕН БОТА ---
+# --- ИНИЦИАЛИЗАЦИЯ ФЕЙКОВОГО ВЕБ-СЕРВЕРА ДЛЯ БЕСПЛАТНОГО ТАРИФА RENDER ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Бот работает в фоновом режиме!"
+
+def run_web_server():
+    # Render автоматически выдает порт в переменную среды PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
 TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 bot = telebot.TeleBot(TOKEN)
 
@@ -20,5 +35,10 @@ def send_admin(message):
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Бот успешно запущен...")
+    # Запускаем веб-сервер в отдельном потоке, чтобы Render был доволен
+    server_thread = Thread(target=run_web_server)
+    server_thread.daemon = True
+    server_thread.start()
+    
+    print("Telegram бот успешно запущен...")
     bot.infinity_polling()
