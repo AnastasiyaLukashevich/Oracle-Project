@@ -4,12 +4,12 @@ from datetime import date, datetime
 import requests
 import urllib.parse
 
-# Подключаем нашу внешнюю базу данных сфер жизни
+# Чистый импорт внешней базы данных core_data.py
 from core_data import CORE_DATA
 
 st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
-# --- АВТОНОМНАЯ НАСТРОЙКА TELEGRAM ---
+# --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAH2qq60z-m1NB9b6IHJuQrGk1irSesGu10"
 TELEGRAM_CHAT_ID = "982947729"
 
@@ -81,9 +81,9 @@ else:
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # --- ФИНАЛЬНАЯ СБОРКА ССЫЛКИ С ТОЧНЫМ АДРЕСОМ ВАШЕГО САЙТА ---
+        # --- СБОРКА ТЕКСТА ШЕРА С ТОЧНОЙ ССЫЛКОЙ НА ВАШ САЙТ И ВАШ БОТ @Lu4ek_bot ---
         site_url = "https://oracle-by-lu4ek.streamlit.app/"
-        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}"
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
         encoded_text = urllib.parse.quote(share_text)
@@ -96,6 +96,7 @@ else:
         """, unsafe_allow_html=True)
         
     st.markdown("<br>", unsafe_allow_html=True)
+    # КНОПКА СБРОСА ДЛЯ РАСЧЕТА НОВОГО КОДА
     if st.button("🔄 Рассчитать новую дату рождения"):
         st.session_state.stage = 1
         st.session_state.num_code = None
