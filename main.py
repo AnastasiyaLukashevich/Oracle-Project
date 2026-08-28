@@ -65,18 +65,20 @@ def save_lead(contact, date_text, num_key):
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
-def send_results_to_admin(contact, date_text, num_key, q1, a1, q2, a2, report):
+def send_results_to_admin(contact, date_text, num_key, q1, r1, t1, q2, r2, t2, report):
     try:
         msg = (
-            f"📊 **SYSTEM: Пользователь полностью прошёл тест!**\n\n"
+            f"📊 **SYSTEM: Платформа — Тест полностью пройден!**\n\n"
             f"👤 **Ник пользователя:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
-            f"❓ **Вопрос 1 (Выбор):** {q1}\n"
-            f"📥 **Ответ:** {a1}\n\n"
-            f"❓ **Вопрос 2 (Свободный):** {q2}\n"
-            f"📥 **Ответ:** {a2}\n\n"
-            f"📝 **Итоговый вердикт:** {report}\n\n"
+            f"❓ **Вопрос 1:** {q1}\n"
+            f"🔘 *Выбранный клик:* {r1}\n"
+            f"✍️ *Свой текст:* {t1 if t1 else 'Не заполнено'}\n\n"
+            f"❓ **Вопрос 2:** {q2}\n"
+            f"🔘 *Выбранный клик:* {r2}\n"
+            f"✍️ *Свой текст:* {t2 if t2 else 'Не заполнено'}\n\n"
+            f"📝 **Итоговый вердикт сайта:** {report}\n\n"
             f"Администратор: @AnastasiyaLukashevich"
         )
         requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
@@ -119,12 +121,20 @@ else:
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
     
-    # --- ГИБРИДНЫЙ ТЕСТ: 1. КНОПКИ ВЫБОРА, 2. СВОБОДНЫЙ ТЕКСТОВЫЙ ВВОД ---
-    c1 = st.radio(f"**1. {profile['q1']}**", profile['ans1'])
-    c2 = st.text_input(f"**2. {profile['q2']}**", placeholder="Опишите ваши мысли и ситуацию своими словами...")
+    # --- ДВОЙНОЙ ПЕРЕКРЕСТНЫЙ ГИБРИДНЫЙ ТЕСТ (КНОПКИ + СВОБОДНЫЙ ВВОД ОДНОВРЕМЕННО) ---
+    st.markdown(f"#### **1. {profile['q1']}**")
+    r1 = st.radio("Выберите подходящий вариант из базы:", profile['ans1'], key="radio_q1")
+    t1 = st.text_input("Или распишите ответ своими словами (необязательно):", placeholder="Если ни один вариант не подошел, укажите причину тут...", key="text_q1")
     
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    st.markdown(f"#### **2. {profile['q2']}**")
+    r2 = st.radio("Выберите подходящий вариант из базы:", profile['ans2'], key="radio_q2")
+    t2 = st.text_input("Или дополните своими мыслями (необязательно):", placeholder="Опишите ваши чувства или ситуацию подробнее...", key="text_q2")
+    
+    # ПУЛЬСИРУЮЩАЯ КНОПКА ПРИЗЫВА В TELEGRAM СИСТЕМНЫМ ДИПЛИНКОМ
     st.markdown(f"""
-        <div style="text-align: center; margin: 20px auto; width: 100%;">
+        <div style="text-align: center; margin: 25px auto; width: 100%;">
             <a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
                 <div style="background: linear-gradient(90deg, #d946ef, #ff0055); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 15px; box-shadow: 0 0 20px rgba(217, 70, 239, 0.6); border: 1px solid #ffffff33;">
                     🔮 ХОЧЕШЬ УЗНАТЬ ПОЛНЫЙ РЕЗУЛЬТАТ? НАПИШИ БОТУ!
@@ -134,42 +144,39 @@ else:
     """, unsafe_allow_html=True)
     
     if st.button("📊 Скомпилировать экспресс-отчет на сайте"):
-        if not c2:
-            st.error("Пожалуйста, заполните текстовое поле ответа перед компиляцией отчета.")
-        else:
-            # Извлекаем красивую одиночную строку из списка r на основе выбранной радио-кнопки
-            idx = profile['ans1'].index(c1)
-            final_report = profile['r'][idx]
-            
-            st.markdown(f"""
-                <div class="neon-box" style="border: 2px solid #f1c40f; background-color: #221a35 !important; margin-top: 15px;">
-                    <span style="color: #ffffff; font-weight: bold;">{final_report}</span>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Отправляем полный гибридный отчет админу в личку
-            send_results_to_admin(
-                st.session_state.user_contact,
-                st.session_state.user_birth_date_str,
-                st.session_state.num_code,
-                profile['q1'], c1,
-                profile['q2'], c2,
-                final_report
-            )
-            
-            site_url = "https://oracle-by-lu4ek.streamlit.app/"
-            share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
-            
-            encoded_url = urllib.parse.quote(site_url)
-            encoded_text = urllib.parse.quote(share_text)
-            tg_share_link = f"tg://msg_url?url={encoded_url}&text={encoded_text}"
-            
-            st.markdown(f"""
-                <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
-                    <div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); margin: 20px auto; width: 85%;">✈️ ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ В TELEGRAM</div>
-                </a>
-            """, unsafe_allow_html=True)
-            
+        # Извлекаем красивую одиночную строку вердикта из списка на основе выбора первой радио-кнопки
+        idx = profile['ans1'].index(r1)
+        final_report = profile['r'][idx]
+        
+        st.markdown(f"""
+            <div class="neon-box" style="border: 2px solid #f1c40f; background-color: #221a35 !important; margin-top: 15px;">
+                <span style="color: #ffffff; font-weight: bold;">{final_report}</span>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Отправляем полный перекрестный отчет админу в мессенджер
+        send_results_to_admin(
+            st.session_state.user_contact,
+            st.session_state.user_birth_date_str,
+            st.session_state.num_code,
+            profile['q1'], r1, t1,
+            profile['q2'], r2, t2,
+            final_report
+        )
+        
+        site_url = "https://oracle-by-lu4ek.streamlit.app/"
+        share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
+        
+        encoded_url = urllib.parse.quote(site_url)
+        encoded_text = urllib.parse.quote(share_text)
+        tg_share_link = f"tg://msg_url?url={encoded_url}&text={encoded_text}"
+        
+        st.markdown(f"""
+            <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
+                <div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); margin: 20px auto; width: 85%;">✈️ ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ В TELEGRAM</div>
+            </a>
+        """, unsafe_allow_html=True)
+        
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Рассчитать новую дату рождения"):
         st.session_state.stage = 1
