@@ -26,6 +26,12 @@ st.markdown(f"""
         .stSuccess {{ background-color: #221133 !important; border-left: 5px solid {current_accent_color} !important; }}
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         
+        /* НОВОЕ ПРАВИЛО: Перекрашиваем цвет шрифта примеров (placeholder) в полях ввода */
+        .stTextInput input::placeholder {{
+            color: #b2bec3 !important; /* Яркий и читаемый светло-серый цвет */
+            opacity: 1 !important;     /* Убираем прозрачность в браузерах Safari/iOS */
+        }}
+        
         div[data-testid="stRadio"] {{
             background-color: #1c1936 !important;
             padding: 15px !important;
@@ -37,7 +43,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 P_3 = "Ваш финансовый застой — это заблокированная созидательная энергия. Как Тройка, вы не можете быть просто исполнителем. Вам необходимо создавать свои продукты, писать тексты и управлять процессами."
-A_3 = "Прекратите копить знания in голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
+A_3 = "Прекратите копить знания в голове. Переводите мысли в осязаемую форму — пишите коды, создавайте тексты, выпускайте продукт в мир."
 P_DEF = "Ваш финансовый застой — это временная блокировка созидательной энергии. Текущий цикл требует от вас переоценки ценностей и автоматизации процессов."
 A_DEF = "Переводите мысли в осязаемую форму. Запустите этот базовый ИТ-продукт, чтобы пробить ментальный застой."
 
@@ -110,14 +116,11 @@ if st.session_state.stage == 2:
         idx = (profile['ans1'].index(c1) + profile['ans2'].index(c2)) % 3
         st.markdown("---")
         
-        # Получаем текст результата
         final_report = profile['r'][idx]
         st.warning(final_report)
         
-        # Динамический текст для отправки друзьям
         share_text = f"Я прошел Digital Oracle и мой вердикт: {final_report} Узнай свой код застоя!"
         
-        # --- СКРИПТ ВСТРОЕННОЙ КНОПКИ ПОДЕЛИТЬСЯ (WEB SHARE API) ---
         st.markdown(f"""
             <button onclick="navigator.share({{title: 'Digital Oracle', text: '{share_text}', url: window.location.href}})" 
             style="
