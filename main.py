@@ -19,7 +19,18 @@ if "num_code" not in st.session_state: st.session_state.num_code = None
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
 
-# --- ИНЪЕКЦИЯ КОНТРАСТНОГО НЕОНОВОГО ДИЗАЙНА (CSS) ---
+# --- УЛУЧШЕННАЯ ИНЪЕКЦИЯ СТИЛЕЙ С ПОДДЕРЖКОЙ Скрытия ОШИБОК ---
+hide_error_css = ""
+if st.session_state.stage == 2:
+    # Если мы на Шаге 2 — принудительно прячем форму Шага 1 и ЛЮБЫЕ блоки ошибок хостинга
+    hide_error_css = """
+        div[data-testid="stForm"] { display: none !important; }
+        .stException, div[data-testid="stNotification"]:has(.stIconException), 
+        div.element-container:has(div[data-testid="stNotification"] .stIconException) { display: none !important; }
+        /* Прячем старый красный блок ошибки формы, если кэш пытается его вывести */
+        .stApp div:has(> p:contains("Неверный формат")) { display: none !important; }
+    """
+
 st.markdown(f"""
     <style>
         .stApp {{ background-color: #0d0b18; color: #e0def2; }}
@@ -46,6 +57,8 @@ st.markdown(f"""
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.2); 
         }}
         div[data-testid="stNotification"] p {{ color: #ffffff !important; font-size: 16px !important; font-weight: 500 !important; }}
+        
+        {hide_error_css}
     </style>
 """, unsafe_allow_html=True)
 
