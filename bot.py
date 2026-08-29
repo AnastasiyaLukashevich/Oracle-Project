@@ -7,19 +7,19 @@ bot = telebot.TeleBot(TOKEN)
 
 app = Flask(__name__)
 
-# Секретный URL-адрес для приема сообщений от Telegram
-WEBHOOK_URL = f"https://onrender.com{TOKEN}"
-
 @app.route('/')
 def home():
-    return "Бот Webhook успешно запущен и удерживает порт!"
+    return "Бот Webhook работает на полной мощности!"
 
-# Главный шлюз, куда Telegram будет пересылать сообщения пользователей
+# Главный шлюз, куда Telegram присылает клики пользователей
 @app.route(f'/{TOKEN}', methods=['POST'])
 def get_message():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
+    try:
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+    except Exception as e:
+        print(f"Ошибка обработки: {e}")
     return "OK", 200
 
 # --- 1. СТАРТОВАЯ КОМАНДА (РАСЧЕТ МАТРИЦЫ И ВЫДАЧА ОТЧЕТОВ) ---
@@ -27,6 +27,7 @@ def get_message():
 def send_start(message):
     full_text = message.text.lower()
     
+    # Сценарий А: Пользователь пришел с сайта за полными результатами
     if "report" in full_text:
         full_report_text = (
             "📊 **ВАШ РАСШИРЕННЫЙ КАРМИЧЕСКИЙ ОТЧЕТ И СТРАТЕГИЯ ПРОРЫВА**\n\n"
@@ -43,6 +44,8 @@ def send_start(message):
             "💬 *Хотите получить персональный разбор вашей матрицы и составить пошаговый план выхода на новый финансовый уровень лично с экспертом? Напишите нашему главному проводнику: @AnastasiyaLukashevich*"
         )
         bot.reply_to(message, full_report_text, parse_mode="Markdown")
+        
+    # Сценарий Б: Обычный первый запуск бота пользователем
     else:
         reply = (
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
@@ -76,13 +79,16 @@ def send_admin(message):
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    # Принудительно переключаем Telegram в режим приема Вебхуков на адрес Render
+    # Умный автоматический диплинк вебхука: Render сам подставит имя вашего сервиса в сеть!
+    service_name = os.environ.get("RENDER_EXTERNAL_URL", "https://onrender.com")
+    webhook_url = f"{service_name}/{TOKEN}"
+    
     try:
         bot.remove_webhook()
-        bot.set_webhook(url=WEBHOOK_URL)
-        print("Успешно привязан вебхук на домен Render...")
+        bot.set_webhook(url=webhook_url)
+        print(f"Роботизированный шлюз Webhook успешно запущен на: {webhook_url}")
     except Exception as e:
-        print(f"Ошибка привязки вебхука: {e}")
+        print(f"Ошибка шлюза: {e}")
         
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
