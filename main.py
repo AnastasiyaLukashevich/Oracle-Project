@@ -3,7 +3,6 @@ import streamlit as st
 from datetime import date, datetime
 import requests
 import urllib.parse
-import pandas as pd
 
 # Чистый импорт внешней базы данных core_data.py
 from core_data import CORE_DATA
@@ -12,7 +11,7 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
-TELEGRAM_CHAT_ID = 982947729  
+TELEGRAM_CHAT_ID = 982947729  # Ваш личный цифровой ID для получения лидов
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
@@ -38,6 +37,12 @@ st.markdown(f"""
         .stButton button {{ background: linear-gradient(90deg, {current_accent_color}, #0d0b18) !important; color: white !important; border-radius: 20px !important; border: 1px solid {current_accent_color} !important; font-weight: bold !important; }}
         div[data-testid="stRadio"] {{ background-color: #1c1936 !important; padding: 15px !important; border-radius: 10px !important; border: 1px solid {current_accent_color}44 !important; }}
         
+        /* ЖЕСТКОЕ ОКРАШИВАНИЕ ВОПРОСОВ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ */
+        h4, h5, p, label, div[data-testid="stMarkdownContainer"] p {{
+            color: {current_accent_color} !important;
+            font-weight: bold !important;
+        }}
+        
         .neon-box {{
             background-color: #16122c !important;
             padding: 18px !important;
@@ -59,7 +64,7 @@ def calculate_numerology_number(birth_date):
 def save_lead(contact, date_text, num_key):
     try:
         msg = (
-            f"🔮 **SYSTEM: Новый лид в системе!**\n\n"
+            f"⚡ **SYSTEM: Новый лид в системе!**\n\n"
             f"👤 **Юзер:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
@@ -72,7 +77,7 @@ def save_lead(contact, date_text, num_key):
 def send_results_to_admin(contact, date_text, num_key, q1, r1, t1, q2, r2, t2, report):
     try:
         msg = (
-            f"📊 **SYSTEM: Платформа — Тест полностью пройден!**\n\n"
+            f"📊 **SYSTEM: Пользователь полностью прошёл тест!**\n\n"
             f"👤 **Ник пользователя:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
@@ -89,15 +94,17 @@ def send_results_to_admin(contact, date_text, num_key, q1, r1, t1, q2, r2, t2, r
         requests.post(gateway_url, json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=10)
     except: pass
 
-st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color:#ffffff !important;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
 
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Творение персональной матрицы")
     with st.form("stage1_form"):
-        user_date = st.date_input("Выберите вашу дату рождения:", value=date(1997, 8, 5), min_value=date(1920, 1, 1), max_value=date.today())
+        # ИСПРАВЛЕНО: Установлено значение value=None для абсолютно пустого поля при старте
+        user_date = st.date_input("Выберите вашу дату рождения:", value=None, min_value=date(1920, 1, 1), max_value=date.today(), placeholder="ДД.ММ.ГГГГ")
         user_contact = st.text_input("Ваш Telegram-никнейм для активации ключа:", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_contact: st.error("Пожалуйста, введите ваш Telegram-никнейм.")
+            if not user_date: st.error("Пожалуйста, выберите вашу дату рождения в календаре.")
+            elif not user_contact: st.error("Пожалуйста, введите ваш Telegram-никнейм.")
             else:
                 num_code = calculate_numerology_number(user_date)
                 date_formatted = user_date.strftime('%d.%m.%Y')
@@ -106,18 +113,10 @@ if st.session_state.stage == 1:
                 st.session_state.user_contact = user_contact
                 st.session_state.user_birth_date_str = date_formatted
                 
-                # Добавляем базовый лид в оперативную CRM
-                st.session_state.crm_db.append({
-                    "Дата записи": datetime.now().strftime("%d.%m.%Y %H:%M"),
-                    "Telegram": user_contact,
-                    "Дата рождения": date_formatted,
-                    "Код матрицы": f"Число {num_code}",
-                    "Ответ 1 (Выбор)": "В процессе...",
-                    "Ответ 1 (Текст)": "В процессе...",
-                    "Ответ 2 (Выбор)": "В процессе...",
-                    "Ответ 2 (Текст)": "В процессе...",
-                    "Вердикт": "Не скомпилирован"
-                })
+                # Запись в CRM-список
+                st.session_state.crm_db.append(
+                    f"Запись: {datetime.now().strftime('%d.%m.%Y %H:%M')} | Юзер: {user_contact} | Дата: {date_formatted} | Код: {num_code}"
+                )
                 
                 save_lead(user_contact, date_formatted, num_code)
                 st.session_state.stage = 2
@@ -128,24 +127,27 @@ else:
     
     st.markdown(f"""
         <div class="neon-box" style="border-left: 5px solid #ff0055;">
-            <span style="color: #ff0055; font-weight: bold;">{profile['psychology']}</span>
+            <span style="color: #ff0055; font-weight: bold; font-size: 15px;">{profile['psychology']}</span>
         </div>
         <div class="neon-box" style="border-left: 5px solid #00ff88;">
-            <span style="color: #00ff88; font-weight: bold;">{profile['advice']}</span>
+            <span style="color: #00ff88; font-weight: bold; font-size: 15px;">{profile['advice']}</span>
         </div>
     """, unsafe_allow_html=True)
     
     st.markdown("<hr>", unsafe_allow_html=True)
-    st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
+    st.markdown("### 🧪 Шаг II: Глубокое сканирование подсознания")
     
-    r1 = st.radio("#### **1. " + profile['q1'] + "**", profile['ans1'], key="radio_q1")
-    t1 = st.text_input("Или распишите ответ своими словами (необязательно):", placeholder="Укажите причину тут...", key="text_q1")
+    st.markdown(f"#### 🔘 1. {profile['q1']}")
+    r1 = st.radio("Варианты ответа:", profile['ans1'], key="radio_q1", label_visibility="collapsed")
+    t1 = st.text_input("Или распишите answer своими словами (необязательно):", placeholder="Укажите причину тут...", key="text_q1")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    r2 = st.radio("#### **2. " + profile['q2'] + "**", profile['ans2'], key="radio_q2")
+    st.markdown(f"#### 🔘 2. {profile['q2']}")
+    r2 = st.radio("Варианты ответа:", profile['ans2'], key="radio_q2", label_visibility="collapsed")
     t2 = st.text_input("Или дополните своими мыслями (необязательно):", placeholder="Опишите ваши чувства подробнее...", key="text_q2")
     
+    # КНОПКА ПРИЗЫВА К БОТУ С ПРЯМЫМ ДИПЛИНКОМ
     st.markdown(f"""
         <div style="text-align: center; margin: 25px auto; width: 100%;">
             <a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
@@ -162,19 +164,12 @@ else:
         
         st.markdown(f"""
             <div class="neon-box" style="border: 2px solid #f1c40f; background-color: #221a35 !important; margin-top: 15px;">
-                <span style="color: #ffffff; font-weight: bold;">{final_report}</span>
+                <span style="color: #ffffff; font-weight: bold; font-size: 15px;">{final_report}</span>
             </div>
         """, unsafe_allow_html=True)
         
-        # Обновляем последнюю запись в нашей оперативной CRM полными ответами
         if st.session_state.crm_db:
-            st.session_state.crm_db[-1].update({
-                "Ответ 1 (Выбор)": r1,
-                "Ответ 1 (Текст)": t1 if t1 else "Пропущено",
-                "Ответ 2 (Выбор)": r2,
-                "Ответ 2 (Текст)": t2 if t2 else "Пропущено",
-                "Вердикт": final_report
-            })
+            st.session_state.crm_db[-1] += f" | Ответ 1: {r1} (Текст: {t1 if t1 else 'Нет'}) | Ответ 2: {r2} (Текст: {t2 if t2 else 'Нет'}) | Вердикт: {final_report}"
         
         send_results_to_admin(
             st.session_state.user_contact,
@@ -185,7 +180,7 @@ else:
             final_report
         )
         
-        site_url = "https://streamlit.app"
+        site_url = "https://oracle-by-lu4ek.streamlit.app/"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
@@ -198,6 +193,3 @@ else:
             </a>
         """, unsafe_allow_html=True)
         
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🔄 Рассчитать новую дату рождения"):
-        st.session_state.stage = 1
