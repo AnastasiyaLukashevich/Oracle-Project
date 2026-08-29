@@ -64,7 +64,7 @@ def calculate_numerology_number(birth_date):
 def save_lead(contact, date_text, num_key):
     try:
         msg = (
-            f"⚡ **SYSTEM: Новый лид в системе!**\n\n"
+            f"🔮 **SYSTEM: Новый лид в системе!**\n\n"
             f"👤 **Юзер:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
@@ -99,12 +99,15 @@ st.markdown("<h1 style='text-align: center; color:#ffffff !important;'>🔮 Digi
 if st.session_state.stage == 1:
     st.markdown("### 🪐 Шаг I: Творение персональной матрицы")
     with st.form("stage1_form"):
-        # ИСПРАВЛЕНО: Установлено значение value=None для абсолютно пустого поля при старте
-        user_date = st.date_input("Выберите вашу дату рождения:", value=None, min_value=date(1920, 1, 1), max_value=date.today(), placeholder="ДД.ММ.ГГГГ")
+        # ИСПРАВЛЕНО ДЛЯ СТАРЫХ ВЕРСИЙ СЕРВЕРА: выставлена базовая дата 01.01.2000
+        user_date = st.date_input("Выберите вашу дату рождения:", value=date(2000, 1, 1), min_value=date(1920, 1, 1), max_value=date.today())
         user_contact = st.text_input("Ваш Telegram-никнейм для активации ключа:", placeholder="@username")
         if st.form_submit_button("🔑 Рассчитать Код Судьбы"):
-            if not user_date: st.error("Пожалуйста, выберите вашу дату рождения в календаре.")
-            elif not user_contact: st.error("Пожалуйста, введите ваш Telegram-никнейм.")
+            # Проверка, изменил ли пользователь дефолтную проверочную дату
+            if user_date == date(2000, 1, 1): 
+                st.error("Пожалуйста, откройте календарь и выберите ваш настоящий день рождения.")
+            elif not user_contact: 
+                st.error("Пожалуйста, введите ваш Telegram-никнейм.")
             else:
                 num_code = calculate_numerology_number(user_date)
                 date_formatted = user_date.strftime('%d.%m.%Y')
@@ -139,7 +142,7 @@ else:
     
     st.markdown(f"#### 🔘 1. {profile['q1']}")
     r1 = st.radio("Варианты ответа:", profile['ans1'], key="radio_q1", label_visibility="collapsed")
-    t1 = st.text_input("Или распишите answer своими словами (необязательно):", placeholder="Укажите причину тут...", key="text_q1")
+    t1 = st.text_input("Или распишите ответ своими словами (необязательно):", placeholder="Укажите причину тут...", key="text_q1")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -189,7 +192,3 @@ else:
         
         st.markdown(f"""
             <a href="{tg_share_link}" target="_blank" style="text-decoration: none;">
-                <div style="background: linear-gradient(90deg, #6c5ce7, #d946ef); color: white !important; text-align: center; padding: 14px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; box-shadow: 0 0 15px rgba(217, 70, 239, 0.4); margin: 20px auto; width: 85%;">✈️ ПОДЕЛИТЬСЯ РЕЗУЛЬТАТОМ В TELEGRAM</div>
-            </a>
-        """, unsafe_allow_html=True)
-        
