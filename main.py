@@ -3,6 +3,7 @@ import streamlit as st
 from datetime import date, datetime
 import requests
 import urllib.parse
+import pandas as pd
 
 # Чистый импорт внешней базы данных core_data.py
 from core_data import CORE_DATA
@@ -11,10 +12,7 @@ st.set_page_config(page_title="Oracle OS", page_icon="🔮", layout="centered")
 
 # --- НАСТРОЙКА СВЯЗИ С TELEGRAM ---
 TELEGRAM_BOT_TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
-
-
-# И вместо неё ВСТАВЬТЕ эту чистую правильную строчку:
-TELEGRAM_CHAT_ID = 982947729
+TELEGRAM_CHAT_ID = 982947729  
 
 COLOR_MAP = {
     "1": "#ff0055", "2": "#00d2ff", "3": "#d946ef", "4": "#00ff88", 
@@ -22,10 +20,12 @@ COLOR_MAP = {
 }
 current_accent_color = "#6c5ce7"
 
+# --- ИНИЦИАЛИЗАЦИЯ БЕЗОПАСНОЙ ПАМЯТИ CRM ВНУТРИ ОБЛАКА ---
 if "stage" not in st.session_state: st.session_state.stage = 1
 if "num_code" not in st.session_state: st.session_state.num_code = None
 if "user_contact" not in st.session_state: st.session_state.user_contact = ""
 if "user_birth_date_str" not in st.session_state: st.session_state.user_birth_date_str = ""
+if "crm_db" not in st.session_state: st.session_state.crm_db = []
 
 if st.session_state.num_code in COLOR_MAP:
     current_accent_color = COLOR_MAP[st.session_state.num_code]
@@ -59,13 +59,14 @@ def calculate_numerology_number(birth_date):
 def save_lead(contact, date_text, num_key):
     try:
         msg = (
-            f"⚡ **SYSTEM: Новый лид в системе!**\n\n"
+            f"🔮 **SYSTEM: Новый лид в системе!**\n\n"
             f"👤 **Юзер:** {contact}\n"
             f"📅 **Дата рождения:** {date_text}\n"
             f"🔢 **Код матрицы:** Число {num_key}\n\n"
             f"Администратор: @AnastasiyaLukashevich"
         )
-        requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
+        gateway_url = f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage"
+        requests.post(gateway_url, json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=10)
     except: pass
 
 def send_results_to_admin(contact, date_text, num_key, q1, r1, t1, q2, r2, t2, report):
@@ -84,7 +85,8 @@ def send_results_to_admin(contact, date_text, num_key, q1, r1, t1, q2, r2, t2, r
             f"📝 **Итоговый вердикт сайта:** {report}\n\n"
             f"Администратор: @AnastasiyaLukashevich"
         )
-        requests.post(f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage", json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
+        gateway_url = f"https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage"
+        requests.post(gateway_url, json={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"}, timeout=10)
     except: pass
 
 st.markdown("<h1 style='text-align: center;'>🔮 Digital Oracle OS</h1>", unsafe_allow_html=True)
@@ -104,8 +106,20 @@ if st.session_state.stage == 1:
                 st.session_state.user_contact = user_contact
                 st.session_state.user_birth_date_str = date_formatted
                 
-                save_lead(user_contact, date_formatted, num_code)
+                # Добавляем базовый лид в оперативную CRM
+                st.session_state.crm_db.append({
+                    "Дата записи": datetime.now().strftime("%d.%m.%Y %H:%M"),
+                    "Telegram": user_contact,
+                    "Дата рождения": date_formatted,
+                    "Код матрицы": f"Число {num_code}",
+                    "Ответ 1 (Выбор)": "В процессе...",
+                    "Ответ 1 (Текст)": "В процессе...",
+                    "Ответ 2 (Выбор)": "В процессе...",
+                    "Ответ 2 (Текст)": "В процессе...",
+                    "Вердикт": "Не скомпилирован"
+                })
                 
+                save_lead(user_contact, date_formatted, num_code)
                 st.session_state.stage = 2
                 st.rerun()
 else:
@@ -124,18 +138,14 @@ else:
     st.markdown("<hr>", unsafe_allow_html=True)
     st.markdown(f"### 🧪 Шаг II: Глубокое сканирование подсознания")
     
-    # --- ДВОЙНОЙ ПЕРЕКРЕСТНЫЙ ГИБРИДНЫЙ ТЕСТ (КНОПКИ + СВОБОДНЫЙ ВВОД ОДНОВРЕМЕННО) ---
-    st.markdown(f"#### **1. {profile['q1']}**")
-    r1 = st.radio("Выберите подходящий вариант из базы:", profile['ans1'], key="radio_q1")
-    t1 = st.text_input("Или распишите ответ своими словами (необязательно):", placeholder="Если ни один вариант не подошел, укажите причину тут...", key="text_q1")
+    r1 = st.radio("#### **1. " + profile['q1'] + "**", profile['ans1'], key="radio_q1")
+    t1 = st.text_input("Или распишите ответ своими словами (необязательно):", placeholder="Укажите причину тут...", key="text_q1")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    st.markdown(f"#### **2. {profile['q2']}**")
-    r2 = st.radio("Выберите подходящий вариант из базы:", profile['ans2'], key="radio_q2")
-    t2 = st.text_input("Или дополните своими мыслями (необязательно):", placeholder="Опишите ваши чувства или ситуацию подробнее...", key="text_q2")
+    r2 = st.radio("#### **2. " + profile['q2'] + "**", profile['ans2'], key="radio_q2")
+    t2 = st.text_input("Или дополните своими мыслями (необязательно):", placeholder="Опишите ваши чувства подробнее...", key="text_q2")
     
-    # ПУЛЬСИРУЮЩАЯ КНОПКА ПРИЗЫВА В TELEGRAM СИСТЕМНЫМ ДИПЛИНКОМ
     st.markdown(f"""
         <div style="text-align: center; margin: 25px auto; width: 100%;">
             <a href="tg://resolve?domain=Lu4ek_bot&start=report" style="text-decoration: none;">
@@ -147,7 +157,6 @@ else:
     """, unsafe_allow_html=True)
     
     if st.button("📊 Скомпилировать экспресс-отчет на сайте"):
-        # Извлекаем красивую одиночную строку вердикта из списка на основе выбора первой радио-кнопки
         idx = profile['ans1'].index(r1)
         final_report = profile['r'][idx]
         
@@ -157,7 +166,16 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # Отправляем полный перекрестный отчет админу в мессенджер
+        # Обновляем последнюю запись в нашей оперативной CRM полными ответами
+        if st.session_state.crm_db:
+            st.session_state.crm_db[-1].update({
+                "Ответ 1 (Выбор)": r1,
+                "Ответ 1 (Текст)": t1 if t1 else "Пропущено",
+                "Ответ 2 (Выбор)": r2,
+                "Ответ 2 (Текст)": t2 if t2 else "Пропущено",
+                "Вердикт": final_report
+            })
+        
         send_results_to_admin(
             st.session_state.user_contact,
             st.session_state.user_birth_date_str,
@@ -167,7 +185,7 @@ else:
             final_report
         )
         
-        site_url = "https://oracle-by-lu4ek.streamlit.app/"
+        site_url = "https://streamlit.app"
         share_text = f"Прошел Digital Oracle. Мой вердикт застоя: {final_report}\n\nПройти тест на сайте: {site_url}\nЗапустить чат-бот проекта: https://t.me"
         
         encoded_url = urllib.parse.quote(site_url)
@@ -183,10 +201,3 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🔄 Рассчитать новую дату рождения"):
         st.session_state.stage = 1
-        st.session_state.num_code = None
-        st.rerun()
-
-st.markdown("<br><br><hr>", unsafe_allow_html=True)
-with st.expander("🔑 Admin"):
-    if st.text_input("Пароль:", type="password") == "supersecret2026" and os.path.exists("leads.txt"):
-        with open("leads.txt", "rb") as file: st.download_button("📥 Скачать базу контактов", data=file, file_name="leads.txt")
