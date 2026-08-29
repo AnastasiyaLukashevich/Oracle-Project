@@ -1,28 +1,28 @@
 import os
-from flask import Flask, request
+from flask import Flask
 import telebot
+from threading import Thread
 
-TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
-bot = telebot.TeleBot(TOKEN)
-
+# --- МИНИМАЛЬНЫЙ ВЕБ-СЕРВЕР ДЛЯ УДЕРЖАНИЯ ПОРТА НА RENDER ---
 app = Flask(__name__)
-
-# Секретный URL-адрес для приема сообщений от Telegram через Render
-WEBHOOK_URL = f"https://onrender.com{TOKEN}"
 
 @app.route('/')
 def home():
-    return "Бот Webhook работает на полной мощности!"
+    return "Бот успешно запущен и удерживает порт!"
 
-@app.route(f'/{TOKEN}', methods=['POST'])
-def get_message():
-    try:
-        json_string = request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
-    except Exception as e:
-        print(f"Ошибка обработки обновления: {e}")
-    return "OK", 200
+def run_web_server():
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
+TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
+bot = telebot.TeleBot(TOKEN)
+
+# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ ВЕБХУКОВ И ОЧИСТКА ПОРТОВ TELEGRAM
+try:
+    bot.remove_webhook()
+except:
+    pass
 
 # --- 1. СТАРТОВАЯ КОМАНДА (РАСЧЕТ МАТРИЦЫ И ВЫДАЧА ОТЧЕТОВ) ---
 @bot.message_handler(commands=['start'])
@@ -53,7 +53,7 @@ def send_start(message):
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
             "Оцифруй свою дату рождения, чтобы за 2 шага выявить скрытые ментальные блоки в сфере денег и узнать точную причину слива энергии.\n\n"
             "Запусти персональное сканирование матрицы ума на нашей интерактивной платформе:\n"
-            "🔗 https://oracle-by-lu4ek.streamlit.app/\n\n"
+            "🔗 https://oracle-by-lu4ek.streamlit.app\n\n"
             "🔒 *Данные строго конфиденциальны.*"
         )
         bot.reply_to(message, reply, parse_mode="Markdown")
@@ -66,7 +66,7 @@ def send_about(message):
         "Это экспертная ИТ-система кармического аудита подсознания, объединяющая прикладную психологию ума и алгоритмы нумерологической матрицы застоя.\n\n"
         "Платформа разработана для выявления скрытых блоков, мешающих росту доходов и масштабированию.\n\n"
         "👤 **Главный эксперт и проводник:** @AnastasiyaLukashevich\n"
-        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app/"
+        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app"
     )
     bot.reply_to(message, reply, parse_mode="Markdown")
 
@@ -94,12 +94,10 @@ def handle_text_messages(message):
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    try:
-        bot.remove_webhook()
-        bot.set_webhook(url=WEBHOOK_URL)
-        print(f"Роботизированный шлюз Webhook успешно запущен на: {webhook_url}")
-    except Exception as e:
-        print(f"Ошибка шлюза вебхука: {e}")
-        
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    # Запуск параллельного фонового сервера для удержания портов Render
+    server_thread = Thread(target=run_web_server)
+    server_thread.daemon = True
+    server_thread.start()
+    
+    print("Telegram бот успешно запущен в монолитном режиме...")
+    bot.infinity_polling(skip_pending=True)
