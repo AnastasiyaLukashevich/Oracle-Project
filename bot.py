@@ -4,7 +4,7 @@ import telebot
 TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
 bot = telebot.TeleBot(TOKEN)
 
-# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ ПРИ СТАРТЕ СЕРВЕРА
+# ЖЕСТКИЙ ПРИНУДИТЕЛЬНЫЙ СБРОС СЕТЕВЫХ СЕССИЙ ДО ЗАПУСКА ОБРАБОТЧИКОВ
 try:
     bot.delete_webhook(drop_pending_updates=True)
 except:
@@ -52,11 +52,11 @@ def send_about(message):
         "Это экспертная ИТ-система кармического аудита подсознания, объединяющая прикладную психологию ума и алгоритмы нумерологической матрицы застоя.\n\n"
         "Платформа разработана для выявления скрытых блоков, мешающих росту доходов и масштабированию.\n\n"
         "👤 **Главный эксперт и проводник:** @AnastasiyaLukashevich\n"
-        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app/"
+        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app"
     )
     bot.reply_to(message, reply, parse_mode="Markdown")
 
-# --- 3. КОМАНДА ДЛЯ АДМИНИСТРАТОРА ---
+# --- 3. КОМАНДA ДЛЯ АДМИНИСТРАТОРА ---
 @bot.message_handler(commands=['admin'])
 def send_admin(message):
     reply = (
