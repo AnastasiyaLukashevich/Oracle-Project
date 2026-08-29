@@ -4,17 +4,18 @@ import telebot
 TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
 bot = telebot.TeleBot(TOKEN)
 
-# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ 409 ПРИ СТАРТЕ СЕРВЕРА
+# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ ПРИ СТАРТЕ СЕРВЕРА
 try:
     bot.delete_webhook(drop_pending_updates=True)
 except:
     pass
 
+# --- 1. СТАРТОВАЯ КОМАНДА (РАСЧЕТ МАТРИЦЫ И ВЫДАЧА ОТЧЕТОВ) ---
 @bot.message_handler(commands=['start'])
 def send_start(message):
     full_text = message.text.lower()
     
-    # --- СЦЕНАРИЙ 1: ПОЛЬЗОВАТЕЛЬ ПРИШЕЛ С САЙТА ЗА ПОЛНЫМ ОТЧЕТОМ ---
+    # Сценарий А: Пользователь пришел с сайта за полными результатами
     if "report" in full_text:
         full_report_text = (
             "📊 **ВАШ РАСШИРЕННЫЙ КАРМИЧЕСКИЙ ОТЧЕТ И СТРАТЕГИЯ ПРОРЫВА**\n\n"
@@ -32,7 +33,7 @@ def send_start(message):
         )
         bot.reply_to(message, full_report_text, parse_mode="Markdown")
         
-    # --- СЦЕНАРИЙ 2: ОБЫЧНЫЙ ПЕРВЫЙ ЗАПУСК БОТА ---
+    # Сценарий Б: Обычный первый запуск бота пользователем
     else:
         reply = (
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
@@ -43,11 +44,28 @@ def send_start(message):
         )
         bot.reply_to(message, reply, parse_mode="Markdown")
 
+# --- 2. КОМАНДА ИНФОРМАЦИИ О ПРОЕКТЕ ---
 @bot.message_handler(commands=['about'])
 def send_about(message):
-    reply = "✨ **О проекте Digital Oracle OS**\n\nЭто экспертная ИТ-система, объединяющая прикладную психологию ума и алгоритмы нумерологической матрицы застоя.\n\nРазработчик: @Lu4ek_bot"
+    reply = (
+        "✨ **О проекте Digital Oracle OS**\n\n"
+        "Это экспертная ИТ-система кармического аудита подсознания, объединяющая прикладную психологию ума и алгоритмы нумерологической матрицы застоя.\n\n"
+        "Платформа разработана для выявления скрытых блоков, мешающих росту доходов и масштабированию.\n\n"
+        "👤 **Главный эксперт и проводник:** @AnastasiyaLukashevich\n"
+        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app/"
+    )
+    bot.reply_to(message, reply, parse_mode="Markdown")
+
+# --- 3. КОМАНДА ДЛЯ АДМИНИСТРАТОРА ---
+@bot.message_handler(commands=['admin'])
+def send_admin(message):
+    reply = (
+        "🔑 **Раздел Администратора**\n\n"
+        "Доступ к базе данных клиентов и скачиванию выгрузок в формате Excel строго ограничен.\n\n"
+        "Выгрузка CRM-таблицы осуществляется через защищенный SSL-интерфейс веб-платформы во вкладке Admin на самом сайте."
+    )
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Telegram бот запущен в облегченном режиме...")
+    print("Telegram бот запущен со списком команд...")
     bot.infinity_polling(skip_pending=True)
