@@ -1,35 +1,32 @@
 import os
-from flask import Flask
+from flask import Flask, request
 import telebot
-from threading import Thread
 
-# --- МИНИМАЛЬНЫЙ ВЕБ-СЕРВЕР ДЛЯ СНЯТИЯ ОШИБКИ ПОРТОВ НА RENDER ---
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Бот успешно запущен и удерживает порт!"
-
-def run_web_server():
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
 TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
 bot = telebot.TeleBot(TOKEN)
 
-# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ ДО ЗАПУСКА ПОЛЛИНГА
-try:
-    bot.delete_webhook(drop_pending_updates=True)
-except:
-    pass
+app = Flask(__name__)
+
+# Секретный URL-адрес для приема сообщений от Telegram
+WEBHOOK_URL = f"https://onrender.com{TOKEN}"
+
+@app.route('/')
+def home():
+    return "Бот Webhook успешно запущен и удерживает порт!"
+
+# Главный шлюз, куда Telegram будет пересылать сообщения пользователей
+@app.route(f'/{TOKEN}', methods=['POST'])
+def get_message():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "OK", 200
 
 # --- 1. СТАРТОВАЯ КОМАНДА (РАСЧЕТ МАТРИЦЫ И ВЫДАЧА ОТЧЕТОВ) ---
 @bot.message_handler(commands=['start'])
 def send_start(message):
     full_text = message.text.lower()
     
-    # Сценарий А: Пользователь пришел с сайта за полными результатами
     if "report" in full_text:
         full_report_text = (
             "📊 **ВАШ РАСШИРЕННЫЙ КАРМИЧЕСКИЙ ОТЧЕТ И СТРАТЕГИЯ ПРОРЫВА**\n\n"
@@ -46,14 +43,12 @@ def send_start(message):
             "💬 *Хотите получить персональный разбор вашей матрицы и составить пошаговый план выхода на новый финансовый уровень лично с экспертом? Напишите нашему главному проводнику: @AnastasiyaLukashevich*"
         )
         bot.reply_to(message, full_report_text, parse_mode="Markdown")
-        
-    # Сценарий Б: Обычный первый запуск бота пользователем
     else:
         reply = (
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
             "Оцифруй свою дату рождения, чтобы за 2 шага выявить скрытые ментальные блоки в сфере денег и узнать точную причину слива энергии.\n\n"
             "Запусти персональное сканирование матрицы ума на нашей интерактивной платформе:\n"
-            "🔗 https://streamlit.app\n\n"
+            "🔗 https://oracle-by-lu4ek.streamlit.app\n\n"
             "🔒 *Данные строго конфиденциальны.*"
         )
         bot.reply_to(message, reply, parse_mode="Markdown")
@@ -81,10 +76,13 @@ def send_admin(message):
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    # Запуск легкого фонового сервера для удержания порта Render
-    server_thread = Thread(target=run_web_server)
-    server_thread.daemon = True
-    server_thread.start()
-    
-    print("Telegram бот успешно запущен со списком команд и веб-портом...")
-    bot.infinity_polling(skip_pending=True)
+    # Принудительно переключаем Telegram в режим приема Вебхуков на адрес Render
+    try:
+        bot.remove_webhook()
+        bot.set_webhook(url=WEBHOOK_URL)
+        print("Успешно привязан вебхук на домен Render...")
+    except Exception as e:
+        print(f"Ошибка привязки вебхука: {e}")
+        
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
