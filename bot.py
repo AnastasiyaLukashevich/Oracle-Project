@@ -7,11 +7,13 @@ bot = telebot.TeleBot(TOKEN)
 
 app = Flask(__name__)
 
+# Секретный URL-адрес для приема сообщений от Telegram через Render
+WEBHOOK_URL = f"https://onrender.com{TOKEN}"
+
 @app.route('/')
 def home():
     return "Бот Webhook работает на полной мощности!"
 
-# Главный шлюз, куда Telegram присылает клики пользователей
 @app.route(f'/{TOKEN}', methods=['POST'])
 def get_message():
     try:
@@ -19,7 +21,7 @@ def get_message():
         update = telebot.types.Update.de_json(json_string)
         bot.process_new_updates([update])
     except Exception as e:
-        print(f"Ошибка обработки: {e}")
+        print(f"Ошибка обработки обновления: {e}")
     return "OK", 200
 
 # --- 1. СТАРТОВАЯ КОМАНДА (РАСЧЕТ МАТРИЦЫ И ВЫДАЧА ОТЧЕТОВ) ---
@@ -27,7 +29,7 @@ def get_message():
 def send_start(message):
     full_text = message.text.lower()
     
-    # Сценарий А: Пользователь пришел с сайта за полными результатами
+    # Сценарий А: Пользователь пришел с сайта по ссылке за полными результатами
     if "report" in full_text:
         full_report_text = (
             "📊 **ВАШ РАСШИРЕННЫЙ КАРМИЧЕСКИЙ ОТЧЕТ И СТРАТЕГИЯ ПРОРЫВА**\n\n"
@@ -51,7 +53,7 @@ def send_start(message):
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
             "Оцифруй свою дату рождения, чтобы за 2 шага выявить скрытые ментальные блоки в сфере денег и узнать точную причину слива энергии.\n\n"
             "Запусти персональное сканирование матрицы ума на нашей интерактивной платформе:\n"
-            "🔗 https://oracle-by-lu4ek.streamlit.app\n\n"
+            "🔗 https://oracle-by-lu4ek.streamlit.app/\n\n"
             "🔒 *Данные строго конфиденциальны.*"
         )
         bot.reply_to(message, reply, parse_mode="Markdown")
@@ -64,11 +66,11 @@ def send_about(message):
         "Это экспертная ИТ-система кармического аудита подсознания, объединяющая прикладную психологию ума и алгоритмы нумерологической матрицы застоя.\n\n"
         "Платформа разработана для выявления скрытых блоков, мешающих росту доходов и масштабированию.\n\n"
         "👤 **Главный эксперт и проводник:** @AnastasiyaLukashevich\n"
-        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app"
+        "🖥️ **Интерактивный сайт:** https://oracle-by-lu4ek.streamlit.app/"
     )
     bot.reply_to(message, reply, parse_mode="Markdown")
 
-# --- 3. КОМАНДA ДЛЯ АДМИНИСТРАТОРА ---
+# --- 3. КОМАНДА ДЛЯ АДМИНИСТРАТОРА ---
 @bot.message_handler(commands=['admin'])
 def send_admin(message):
     reply = (
@@ -78,17 +80,26 @@ def send_admin(message):
     )
     bot.reply_to(message, reply, parse_mode="Markdown")
 
+# --- 4. ПЕРЕХВАТЧИК ЛЮБЫХ ДРУГИХ ТЕКСТОВЫХ СООБЩЕНИЙ НЕ ПО КОМАНДЕ ---
+@bot.message_handler(content_types=['text'])
+def handle_text_messages(message):
+    reply = (
+        "🔮 **Информационная система Digital Oracle OS**\n\n"
+        "Ваше текстовое сообщение зафиксировано в фоновом режиме сервера. "
+        "Пожалуйста, используйте официальное интерактивное меню или перейдите по прямой ссылке для взаимодействия с матрицей:\n\n"
+        "🔗 **Пройти тест на сайте:**\n"
+        "https://oracle-by-lu4ek.streamlit.app\n\n"
+        "ℹ️ *Используйте синюю кнопку «Меню» в левом нижнем углу экрана смартфона для навигации по системным командам бота.*"
+    )
+    bot.reply_to(message, reply, parse_mode="Markdown")
+
 if __name__ == "__main__":
-    # Умный автоматический диплинк вебхука: Render сам подставит имя вашего сервиса в сеть!
-    service_name = os.environ.get("RENDER_EXTERNAL_URL", "https://onrender.com")
-    webhook_url = f"{service_name}/{TOKEN}"
-    
     try:
         bot.remove_webhook()
-        bot.set_webhook(url=webhook_url)
+        bot.set_webhook(url=WEBHOOK_URL)
         print(f"Роботизированный шлюз Webhook успешно запущен на: {webhook_url}")
     except Exception as e:
-        print(f"Ошибка шлюза: {e}")
+        print(f"Ошибка шлюза вебхука: {e}")
         
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
