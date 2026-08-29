@@ -1,10 +1,24 @@
+import os
+from flask import Flask
 import telebot
+from threading import Thread
 
-# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА С ВАШИМ АКТУАЛЬНЫМ ТОКЕНОМ ---
+# --- МИНИМАЛЬНЫЙ ВЕБ-СЕРВЕР ДЛЯ СНЯТИЯ ОШИБКИ ПОРТОВ НА RENDER ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Бот успешно запущен и удерживает порт!"
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+# --- НАСТРОЙКА И КОМАНДЫ TELEGRAM БОТА ---
 TOKEN = "7786619038:AAHKknS1gJb02oEzZ0pxaLv6Zu9O36yoW2Q"
 bot = telebot.TeleBot(TOKEN)
 
-# ЖЕСТКИЙ ПРИНУДИТЕЛЬНЫЙ СБРОС СЕТЕВЫХ СЕССИЙ ДО ЗАПУСКА ОБРАБОТЧИКОВ
+# МГНОВЕННЫЙ СБРОС СЕТЕВЫХ КОНФЛИКТОВ ДО ЗАПУСКА ПОЛЛИНГА
 try:
     bot.delete_webhook(drop_pending_updates=True)
 except:
@@ -39,7 +53,7 @@ def send_start(message):
             "🔮 **Система Digital Oracle OS активирована!**\n\n"
             "Оцифруй свою дату рождения, чтобы за 2 шага выявить скрытые ментальные блоки в сфере денег и узнать точную причину слива энергии.\n\n"
             "Запусти персональное сканирование матрицы ума на нашей интерактивной платформе:\n"
-            "🔗 https://oracle-by-lu4ek.streamlit.app\n\n"
+            "🔗 https://streamlit.app\n\n"
             "🔒 *Данные строго конфиденциальны.*"
         )
         bot.reply_to(message, reply, parse_mode="Markdown")
@@ -67,5 +81,10 @@ def send_admin(message):
     bot.reply_to(message, reply, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    print("Telegram бот запущен со списком команд...")
+    # Запуск легкого фонового сервера для удержания порта Render
+    server_thread = Thread(target=run_web_server)
+    server_thread.daemon = True
+    server_thread.start()
+    
+    print("Telegram бот успешно запущен со списком команд и веб-портом...")
     bot.infinity_polling(skip_pending=True)
